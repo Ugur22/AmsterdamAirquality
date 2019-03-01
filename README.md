@@ -3,6 +3,8 @@
 
 This project is used as an example to show what the capabilities are of the Deck.gl library in combination with React.js
 
+![Example Image of the webapp](https://i.imgur.com/DmTR2J1.png)
+
 ## Available Scripts
 
 In the project directory, you can run:
