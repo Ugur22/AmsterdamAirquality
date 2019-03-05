@@ -105,7 +105,8 @@ class App extends React.Component {
             radiusMaxPixels: 100,
             lineWidthMinPixels: 2,
             getPosition: d => d.coordinates,
-            getFillColor: d => d.color
+            getFillColor: d => d.color,
+            getLineColor: [255, 255, 255]
           })
           // new TextLayer({
           //   id: "text-layer",
