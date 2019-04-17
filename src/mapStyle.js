@@ -8,12 +8,12 @@ export const mapStyle = {
       "tiles": [
         "http://vtiles.waag.org/services/europe/tiles/{z}/{x}/{y}.pbf"
       ],
-      "minZoom": 0,
-      "maxZoom": 14
+      "minzoom": 0,
+      "maxzoom": 14
     }
   },
-  "sprite": "https://openmaptiles.github.io/positron-gl-style/sprite",
-  "glyphs": "https://free.tilehosting.com/fonts/{fontstack}/{range}.pbf?key={key}",
+  //"sprite": "https://openmaptiles.github.io/positron-gl-style/sprite",
+  "glyphs": "http://vtiles.waag.org/fonts/{fontstack}/{range}.pbf",
   "layers": [
     {
       "id": "background",
@@ -128,7 +128,7 @@ export const mapStyle = {
       "type": "fill",
       "source": "waag",
       "source-layer": "landuse",
-      "maxzoom": 16,
+      "maxzoom": 20,
       "filter": [
         "all",
         [
@@ -234,8 +234,7 @@ export const mapStyle = {
         "text-rotation-alignment": "map",
         "symbol-spacing": 500,
         "text-font": [
-          //"Metropolis Medium Italic",
-          //"Noto Sans Italic"
+          "Maax Regular Italic"
         ],
         "text-size": 12
       },
@@ -1421,11 +1420,10 @@ export const mapStyle = {
       "layout": {
         "text-size": 10,
         "text-max-angle": 30,
-        "text-transform": "uppercase",
+        "text-transform": "none",
         "symbol-spacing": 350,
         "text-font": [
-          // "Metropolis Regular",
-          // "Noto Sans Regular"
+          "Maax Medium"
         ],
         "symbol-placement": "line",
         "visibility": "visible",
@@ -1469,8 +1467,7 @@ export const mapStyle = {
         "text-size": 10,
         "symbol-spacing": 350,
         "text-font": [
-          // "Metropolis Light",
-          // "Noto Sans Regular"
+          "Maax Regular"
         ],
         "symbol-placement": "line",
         "visibility": "visible",
@@ -1497,7 +1494,7 @@ export const mapStyle = {
       },
       "source": "waag",
       "source-layer": "place",
-      "maxzoom": 14,
+      "maxzoom": 20,
       "filter": [
         "all",
         [
@@ -1516,10 +1513,9 @@ export const mapStyle = {
       ],
       "layout": {
         "text-size": 10,
-        "text-transform": "uppercase",
+        "text-transform": "none",
         "text-font": [
-          // "Metropolis Regular",
-          // "Noto Sans Regular"
+          "Maax Medium"
         ],
         "text-justify": "center",
         "visibility": "visible",
@@ -1545,7 +1541,7 @@ export const mapStyle = {
       },
       "source": "waag",
       "source-layer": "place",
-      "maxzoom": 15,
+      "maxzoom": 20,
       "filter": [
         "all",
         [
@@ -1561,10 +1557,9 @@ export const mapStyle = {
       ],
       "layout": {
         "text-size": 10,
-        "text-transform": "uppercase",
+        "text-transform": "none",
         "text-font": [
-          // "Metropolis Regular",
-          // "Noto Sans Regular"
+          "Maax Medium"
         ],
         "text-justify": "center",
         "visibility": "visible",
@@ -1590,7 +1585,7 @@ export const mapStyle = {
       },
       "source": "waag",
       "source-layer": "place",
-      "maxzoom": 14,
+      "maxzoom": 20,
       "filter": [
         "all",
         [
@@ -1606,10 +1601,9 @@ export const mapStyle = {
       ],
       "layout": {
         "text-size": 10,
-        "text-transform": "uppercase",
+        "text-transform": "none",
         "text-font": [
-          // "Metropolis Regular",
-          // "Noto Sans Regular"
+          "Maax Medium"
         ],
         "text-justify": "left",
         "visibility": "visible",
@@ -1637,7 +1631,7 @@ export const mapStyle = {
       },
       "source": "waag",
       "source-layer": "place",
-      "maxzoom": 15,
+      "maxzoom": 20,
       "filter": [
         "all",
         [
@@ -1666,10 +1660,9 @@ export const mapStyle = {
             ]
           ]
         },
-        "text-transform": "uppercase",
+        "text-transform": "none",
         "text-font": [
-          // "Metropolis Regular",
-          // "Noto Sans Regular"
+          "Maax Medium"
         ],
         "text-justify": "left",
         "visibility": "visible",
@@ -1709,7 +1702,7 @@ export const mapStyle = {
       },
       "source": "waag",
       "source-layer": "place",
-      "maxzoom": 14,
+      "maxzoom": 20,
       "filter": [
         "all",
         [
@@ -1751,10 +1744,9 @@ export const mapStyle = {
             ]
           ]
         },
-        "text-transform": "uppercase",
+        "text-transform": "none",
         "text-font": [
-          // "Metropolis Regular",
-          // "Noto Sans Regular"
+          "Maax Medium"
         ],
         "text-justify": "left",
         "visibility": "visible",
@@ -1831,10 +1823,9 @@ export const mapStyle = {
             ]
           ]
         },
-        "text-transform": "uppercase",
+        "text-transform": "none",
         "text-font": [
-          // "Metropolis Regular",
-          // "Noto Sans Regular"
+          "Maax Medium"
         ],
         "text-justify": "left",
         "visibility": "visible",
@@ -1916,10 +1907,9 @@ export const mapStyle = {
             ]
           ]
         },
-        "text-transform": "uppercase",
+        "text-transform": "none",
         "text-font": [
-          // "Metropolis Regular",
-          // "Noto Sans Regular"
+          "Maax Medium"
         ],
         "text-justify": "left",
         "visibility": "visible",
@@ -1977,10 +1967,9 @@ export const mapStyle = {
         "visibility": "visible",
         "text-field": "{name:latin}\n{name:nonlatin}",
         "text-font": [
-          // "Metropolis Regular",
-          // "Noto Sans Regular"
+          "Maax Medium"
         ],
-        "text-transform": "uppercase",
+        "text-transform": "none",
         "text-size": 10
       },
       "paint": {
@@ -2020,10 +2009,9 @@ export const mapStyle = {
         "visibility": "visible",
         "text-field": "{name:latin}",
         "text-font": [
-          // "Metropolis Light Italic",
-          // "Noto Sans Italic"
+          "Maax Regular Italic"
         ],
-        "text-transform": "uppercase",
+        "text-transform": "none",
         "text-size": {
           "base": 1,
           "stops": [
@@ -2091,10 +2079,9 @@ export const mapStyle = {
         "visibility": "visible",
         "text-field": "{name:latin}",
         "text-font": [
-          // "Metropolis Regular",
-          // "Noto Sans Regular"
+          "Maax Medium"
         ],
-        "text-transform": "uppercase",
+        "text-transform": "none",
         "text-size": {
           "base": 1,
           "stops": [
@@ -2162,10 +2149,9 @@ export const mapStyle = {
         "visibility": "visible",
         "text-field": "{name:latin}",
         "text-font": [
-          // "Metropolis Regular",
-          // "Noto Sans Regular"
+          "Maax Medium"
         ],
-        "text-transform": "uppercase",
+        "text-transform": "none",
         "text-size": {
           "base": 1.4,
           "stops": [
