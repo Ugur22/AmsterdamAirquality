@@ -5,6 +5,15 @@ import DeckGL from "deck.gl"; //TextLayer //ScreenGridLayer
 import { StaticMap } from "react-map-gl";
 import { TripsLayer } from "@deck.gl/geo-layers";
 
+
+const DATA_URL = {
+  BUILDINGS:
+    'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/buildings.json', // eslint-disable-line
+  TRIPS:
+    'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/trips.json' // eslint-disable-line
+};
+
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -24,11 +33,12 @@ class App extends React.Component {
 
   _animate() {
     const {
-      loopLength = 1800, // unit corresponds to the timestamp in source data
-      animationSpeed = 30 // unit time per second
+      loopLength = 1000, // unit corresponds to the timestamp in source data
+      animationSpeed = 100 // unit time per second
     } = this.props;
     const timestamp = Date.now() / 1000;
     const loopTime = loopLength / animationSpeed;
+    // console.log( Math.fround(1555528823442));
 
     this.setState({
       time: ((timestamp % loopTime) / loopTime) * loopLength
@@ -39,7 +49,7 @@ class App extends React.Component {
   }
 
   render() {
-    const { trailLength = 180 } = this.props;
+    const { trips = DATA_URL.TRIPS, trailLength = 500} = this.props;
     return (
       <DeckGL
         initialViewState={{
@@ -53,26 +63,22 @@ class App extends React.Component {
           new TripsLayer({
             id: "trips-layer",
             data: [
+           
               {
-                waypoints: [
-                  { coordinates: [4.6101, 52.489], timestamp: 1554772579000 },
-                  { coordinates: [4.5823, 52.4803], timestamp: 1554772579010 },
-                  { coordinates: [4.5972, 52.4952], timestamp: 1554772580200 },
-                  { coordinates: [4.5972, 52.4992], timestamp: 1554772580300 },
+                vendor: 1,
+                segments: [
+                  { coordinates: [4.844318, 52.40476], timestamp: 1554772579000 },
+                  { coordinates: [4.5823, 52.4805], timestamp: 1554772579010 },
+                  { coordinates: [4.5972, 52.4956], timestamp: 1554772580200 },
                 ]
               }
             ],
             // deduct start timestamp from each data point to avoid overflow
-            getPath: d =>
-              d.waypoints.map(p => [
-                p.coordinates[0],
-                p.coordinates[1],
-                p.timestamp - 1554772579000
-              ]),
-            getColor: [253, 128, 93],
+            getPath: d => d.segments.map(p => [p.coordinates[0], p.coordinates[1], p.timestamp - 1554772579000]),
+              
+            getColor: d => (d.vendor === 0 ? [253, 128, 93] : [23, 184, 190]),
             opacity: 1,
-            widthMinPixels: 50,
-            strokeWidth: 5,
+            widthMinPixels: 5,
             rounded: true,
             trailLength,
             currentTime: this.state.time
