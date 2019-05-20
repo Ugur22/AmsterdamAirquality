@@ -1,92 +1,144 @@
 import React from "react";
-import { mapStyle } from "./mapStyle.js";
-// import { data } from "./data.js";
-import DeckGL from "deck.gl"; //TextLayer //ScreenGridLayer
+// import { mapStyle } from "./settings/mapStyle.js";
+// import {mapStyleDark} from "./settings/mapStyleDark";
+import DeckGL from "deck.gl";
 import { StaticMap } from "react-map-gl";
-import { TripsLayer } from "@deck.gl/geo-layers";
+import { GridCellLayer } from "@deck.gl/layers";
+import { color, getColorArray } from "./settings/util";
+import { scaleLinear } from "d3-scale";
+import Detailgraph from "./detailview/Detailgraph";
+import { getNowHourISO } from "./settings/time";
+import InfoPanel from "./InfoPanel";
+// import * as MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions';
+// import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 
-
-const DATA_URL = {
-  BUILDINGS:
-    'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/buildings.json', // eslint-disable-line
-  TRIPS:
-    'https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/trips/trips.json' // eslint-disable-line
+const INITIAL_VIEW_STATE = {
+  longitude: 4.8972,
+  latitude: 52.3709,
+  zoom: 13,
+  pitch: 50
 };
-
+const MAPBOX_ACCESS_TOKEN =
+  "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
 
 class App extends React.Component {
   constructor(props) {
-    super(props);
+    super();
+
     this.state = {
-      time: 0
+      data: []
     };
+
+    this.closeInfoPanel = this.closeInfoPanel.bind(this);
   }
+
   componentDidMount() {
-    this._animate();
-  }
+    let start = getNowHourISO();
+    const urls = [
+      `https://data.waag.org/api/getOfficialMeasurement?formula=NO2&start=${start}&end=${start}&
+      station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&&station_id=NL49021&&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016`
+    ];
 
-  componentWillUnmount() {
-    if (this._animationFrame) {
-      window.cancelAnimationFrame(this._animationFrame);
-    }
-  }
+    Promise.all(urls.map(url => fetch(url).then(resp => resp.json()))).then(
+      ([results]) => {
+        const data = results.map(station => {
+          station.coordinates = station.coordinates.reverse();
+          return station;
+        });
 
-  _animate() {
-    const {
-      loopLength = 1000, // unit corresponds to the timestamp in source data
-      animationSpeed = 100 // unit time per second
-    } = this.props;
-    const timestamp = Date.now() / 1000;
-    const loopTime = loopLength / animationSpeed;
-    // console.log( Math.fround(1555528823442));
-
-    this.setState({
-      time: ((timestamp % loopTime) / loopTime) * loopLength
-    });
-    this._animationFrame = window.requestAnimationFrame(
-      this._animate.bind(this)
+        this.setState({ data });
+      }
     );
   }
 
-  render() {
-    const { trips = DATA_URL.TRIPS, trailLength = 500} = this.props;
+  renderTooltip() {
+    const { hoveredObject, pointerX, pointerY } = this.state || {};
+
     return (
-      <DeckGL
-        initialViewState={{
-          longitude: 4.5984,
-          latitude: 52.4952,
-          zoom: 14,
-          pitch: 50
-        }}
-        controller={true}
-        layers={[
-          new TripsLayer({
-            id: "trips-layer",
-            data: [
-           
-              {
-                vendor: 1,
-                segments: [
-                  { coordinates: [4.844318, 52.40476], timestamp: 1554772579000 },
-                  { coordinates: [4.5823, 52.4805], timestamp: 1554772579010 },
-                  { coordinates: [4.5972, 52.4956], timestamp: 1554772580200 },
-                ]
-              }
-            ],
-            // deduct start timestamp from each data point to avoid overflow
-            getPath: d => d.segments.map(p => [p.coordinates[0], p.coordinates[1], p.timestamp - 1554772579000]),
-              
-            getColor: d => (d.vendor === 0 ? [253, 128, 93] : [23, 184, 190]),
-            opacity: 1,
-            widthMinPixels: 5,
-            rounded: true,
-            trailLength,
-            currentTime: this.state.time
+      hoveredObject && (
+        <div
+          className="data-hover"
+          style={{
+            position: "absolute",
+            zIndex: 1000,
+            pointerEvents: "none",
+            left: pointerX,
+            top: pointerY
+          }}
+        >
+          ID: {hoveredObject.station_number}
+          <br />
+          Laatste uurgemiddelde: {hoveredObject.value} μg/m3
+        </div>
+      )
+    );
+  }
+
+  closeInfoPanel() {
+    this.setState({
+      clickedObject: null
+    });
+  }
+
+  renderStation() {
+    const { clickedObject } = this.state || {};
+
+    if (clickedObject != null) {
+      return (
+        <InfoPanel closeInfoPanel={this.closeInfoPanel}>
+          <Detailgraph clickedObject={clickedObject.station_number} />
+        </InfoPanel>
+      );
+    }
+  }
+
+  render() {
+    const data = this.state.data;
+    const cellSize = 50;
+    const elevation = scaleLinear([0, 10], [0, 2]);
+    const { viewstate } = this.props;
+
+    const layer = [
+      new GridCellLayer({
+        ...this.props,
+        id: "grid-cell-layer",
+        data,
+        pickable: true,
+        extruded: true,
+        getPosition: d => d.coordinates,
+        cellSize: cellSize,
+        elevationScale: 50,
+        getColor: d => getColorArray(color(d.value, [0, 25])),
+        getElevation: d => elevation(d.value),
+        onHover: info =>
+          this.setState({
+            hoveredObject: info.object,
+            pointerX: info.x,
+            pointerY: info.y
+          }),
+        onClick: info =>
+          this.setState({
+            clickedObject: info.object
           })
-        ]}
-      >
-        <StaticMap mapStyle={mapStyle} />
-      </DeckGL>
+      })
+    ];
+
+    return (
+      <div>
+        <DeckGL
+          initialViewState={INITIAL_VIEW_STATE}
+          viewState={viewstate}
+          controller={true}
+          layers={layer}
+        >
+          <StaticMap
+            mapStyle={"mapbox://styles/ugur22/cjvpc96ky16c91ck6woz0ih5d"}
+            mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
+          />
+          {this.renderTooltip.bind(this)}
+          {this.renderStation.bind(this)}
+        </DeckGL>
+      </div>
     );
   }
 }
