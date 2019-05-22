@@ -2,15 +2,14 @@ import React from "react";
 // import { mapStyle } from "./settings/mapStyle.js";
 // import {mapStyleDark} from "./settings/mapStyleDark";
 import DeckGL from "deck.gl";
-import { StaticMap } from "react-map-gl";
+import ReactMapGL from "react-map-gl";
 import { GridCellLayer } from "@deck.gl/layers";
 import { color, getColorArray } from "./settings/util";
 import { scaleLinear } from "d3-scale";
 import Detailgraph from "./detailview/Detailgraph";
 import { getNowHourISO } from "./settings/time";
 import InfoPanel from "./InfoPanel";
-// import * as MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions';
-// import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
+import * as MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
 
 const INITIAL_VIEW_STATE = {
   longitude: 4.8972,
@@ -26,7 +25,15 @@ class App extends React.Component {
     super();
 
     this.state = {
-      data: []
+      data: [],
+      viewport: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        longitude: 4.8972,
+        latitude: 52.3709,
+        zoom: 13,
+        pitch: 50
+      }
     };
 
     this.closeInfoPanel = this.closeInfoPanel.bind(this);
@@ -125,19 +132,19 @@ class App extends React.Component {
 
     return (
       <div>
-        <DeckGL
-          initialViewState={INITIAL_VIEW_STATE}
-          viewState={viewstate}
-          controller={true}
-          layers={layer}
+        <ReactMapGL
+          mapStyle={"mapbox://styles/ugur22/cjvpc96ky16c91ck6woz0ih5d"}
+          mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} width="100%" height="100%"  {...this.state.viewport}     onViewportChange={(viewport) => this.setState({viewport})}
         >
-          <StaticMap
-            mapStyle={"mapbox://styles/ugur22/cjvpc96ky16c91ck6woz0ih5d"}
-            mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
-          />
-          {this.renderTooltip.bind(this)}
-          {this.renderStation.bind(this)}
-        </DeckGL>
+          <DeckGL
+            initialViewState={INITIAL_VIEW_STATE}
+            controller={true}
+            layers={layer}
+          >
+            {this.renderTooltip.bind(this)}
+            {this.renderStation.bind(this)}
+          </DeckGL>
+        </ReactMapGL>
       </div>
     );
   }
