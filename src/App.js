@@ -1,15 +1,17 @@
 import React from "react";
-// import { mapStyle } from "./settings/mapStyle.js";
-// import {mapStyleDark} from "./settings/mapStyleDark";
-import DeckGL from "deck.gl";
+import DeckGL, { GridCellLayer } from "deck.gl";
 import ReactMapGL from "react-map-gl";
-import { GridCellLayer } from "@deck.gl/layers";
+import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
+import { MapboxLayer } from "@deck.gl/mapbox";
+
 import { color, getColorArray } from "./settings/util";
 import { scaleLinear } from "d3-scale";
 import Detailgraph from "./detailview/Detailgraph";
 import { getNowHourISO } from "./settings/time";
 import InfoPanel from "./InfoPanel";
-import * as MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
+
+import "./css/direction.scss";
+import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 
 const INITIAL_VIEW_STATE = {
   longitude: 4.8972,
@@ -17,10 +19,14 @@ const INITIAL_VIEW_STATE = {
   zoom: 13,
   pitch: 50
 };
+
 const MAPBOX_ACCESS_TOKEN =
   "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
 
-class App extends React.Component {
+  const mapStyle = "mapbox://styles/ugur22/cjvpc96ky16c91ck6woz0ih5d";
+export default class App extends React.Component {
+  state = {};
+
   constructor(props) {
     super();
 
@@ -39,28 +45,9 @@ class App extends React.Component {
     this.closeInfoPanel = this.closeInfoPanel.bind(this);
   }
 
-  componentDidMount() {
-    let start = getNowHourISO();
-    const urls = [
-      `https://data.waag.org/api/getOfficialMeasurement?formula=NO2&start=${start}&end=${start}&
-      station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&&station_id=NL49021&&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016`
-    ];
-
-    Promise.all(urls.map(url => fetch(url).then(resp => resp.json()))).then(
-      ([results]) => {
-        const data = results.map(station => {
-          station.coordinates = station.coordinates.reverse();
-          return station;
-        });
-
-        this.setState({ data });
-      }
-    );
-  }
-
   renderTooltip() {
     const { hoveredObject, pointerX, pointerY } = this.state || {};
-
+   
     return (
       hoveredObject && (
         <div
@@ -99,15 +86,48 @@ class App extends React.Component {
     }
   }
 
+  // Add deck layer to mapbox
+  _onMapLoad = () => {
+    const map = this._map;
+    const deck = this._deck;
+
+    var directions = new MapboxDirections({
+      accessToken: MAPBOX_ACCESS_TOKEN,
+      unit: "metric",
+      profile: "mapbox/cycling"
+    });
+
+    map.addControl(directions, "top-left");
+
+    map.addLayer(new MapboxLayer({ id: "grid-cell-layer", deck }));
+  };
+
+  componentDidMount() {
+    let start = getNowHourISO();
+    const urls = [
+      `https://data.waag.org/api/getOfficialMeasurement?formula=NO2&start=${start}&end=${start}&
+      station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&&station_id=NL49021&&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016`
+    ];
+
+    Promise.all(urls.map(url => fetch(url).then(resp => resp.json()))).then(
+      ([results]) => {
+        const data = results.map(station => {
+          station.coordinates = station.coordinates.reverse();
+          return station;
+        });
+
+        this.setState({ data });
+      }
+    );
+  }
+
   render() {
     const data = this.state.data;
     const cellSize = 50;
     const elevation = scaleLinear([0, 10], [0, 2]);
-    const { viewstate } = this.props;
 
-    const layer = [
+    const layers = [
       new GridCellLayer({
-        ...this.props,
         id: "grid-cell-layer",
         data,
         pickable: true,
@@ -131,22 +151,32 @@ class App extends React.Component {
     ];
 
     return (
-      <div>
-        <ReactMapGL
-          mapStyle={"mapbox://styles/ugur22/cjvpc96ky16c91ck6woz0ih5d"}
-          mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} width="100%" height="100%"  {...this.state.viewport}     onViewportChange={(viewport) => this.setState({viewport})}
+      <ReactMapGL
+        mapStyle={mapStyle}
+        mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
+        maxZoom={25}
+        minZoom={13}
+        onLoad={this._onMapLoad}
+        {...this.state.viewport}
+        onViewportChange={viewport => this.setState({ viewport })}
+        ref={ref => {
+          // save a reference to the mapboxgl.Map instance
+          this._map = ref && ref.getMap();
+        }}
+      >
+        <DeckGL
+          ref={ref => {
+            // save a reference to the Deck instance
+            this._deck = ref && ref.deck;
+          }}
+          layers={layers}
+          initialViewState={INITIAL_VIEW_STATE}
+          controller={true}
         >
-          <DeckGL
-            initialViewState={INITIAL_VIEW_STATE}
-            controller={true}
-            layers={layer}
-          >
-            {this.renderTooltip.bind(this)}
-            {this.renderStation.bind(this)}
-          </DeckGL>
-        </ReactMapGL>
-      </div>
+          {this.renderTooltip.bind(this)}
+          {this.renderStation.bind(this)}
+        </DeckGL>
+      </ReactMapGL>
     );
   }
 }
-export default App;
