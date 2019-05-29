@@ -1,8 +1,9 @@
 import React from "react";
 import DeckGL, { GridCellLayer } from "deck.gl";
-import ReactMapGL from "react-map-gl";
+import ReactMapGL, { Marker } from "react-map-gl";
 import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
 import { MapboxLayer } from "@deck.gl/mapbox";
+// import {mapStyle} from './settings/mapStyle'
 
 import { color, getColorArray } from "./settings/util";
 import { scaleLinear } from "d3-scale";
@@ -13,6 +14,10 @@ import InfoPanel from "./InfoPanel";
 import "./css/direction.scss";
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 
+const MAPBOX_ACCESS_TOKEN =
+  "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
+const mapStyle = "mapbox://styles/ugur22/cjw1xdexp03td1crpzxagiywf";
+
 const INITIAL_VIEW_STATE = {
   longitude: 4.8972,
   latitude: 52.3709,
@@ -20,10 +25,20 @@ const INITIAL_VIEW_STATE = {
   pitch: 50
 };
 
-const MAPBOX_ACCESS_TOKEN =
-  "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
+let data;
 
-  const mapStyle = "mapbox://styles/ugur22/cjvpc96ky16c91ck6woz0ih5d";
+let directions = new MapboxDirections({
+  accessToken: MAPBOX_ACCESS_TOKEN,
+  unit: "metric",
+  profile: "mapbox/cycling",
+  congestion: true,
+  alternatives: true,
+  flyTo: false,
+  controls: {
+    // instructions:false
+  }
+});
+
 export default class App extends React.Component {
   state = {};
 
@@ -32,6 +47,7 @@ export default class App extends React.Component {
 
     this.state = {
       data: [],
+      stationInfo: null,
       viewport: {
         width: window.innerWidth,
         height: window.innerHeight,
@@ -46,8 +62,28 @@ export default class App extends React.Component {
   }
 
   renderTooltip() {
-    const { hoveredObject, pointerX, pointerY } = this.state || {};
+
    
+    let { hoveredObject, pointerX, pointerY,stationName } = this.state || {};
+
+
+if(hoveredObject) {
+
+
+  const urlInfo = [
+    `https://data.waag.org/api/getOfficialStations?station_id=${hoveredObject.station_number}`,
+  ];
+
+  
+  Promise.all(urlInfo.map(url => fetch(url).then(resp => resp.json()))).then(
+    ([stationInfo]) => {
+      stationName = stationInfo.data.location;
+      this.setState({stationName });
+    }
+  );
+}
+  
+  
     return (
       hoveredObject && (
         <div
@@ -57,10 +93,10 @@ export default class App extends React.Component {
             zIndex: 1000,
             pointerEvents: "none",
             left: pointerX,
-            top: pointerY
+            top: pointerY,
           }}
         >
-          ID: {hoveredObject.station_number}
+          <span>{stationName}</span>  
           <br />
           Laatste uurgemiddelde: {hoveredObject.value} μg/m3
         </div>
@@ -91,16 +127,29 @@ export default class App extends React.Component {
     const map = this._map;
     const deck = this._deck;
 
-    var directions = new MapboxDirections({
-      accessToken: MAPBOX_ACCESS_TOKEN,
-      unit: "metric",
-      profile: "mapbox/cycling"
-    });
+    // directions.on("profile", function(Profile) {
+    //   console.log(Profile);
+
+    //   directions.setOrigin([4.89792, 52.37894]);
+    //   directions.addWaypoint(0, [4.89792, 52.37894]);
+    //   directions.addWaypoint(1, [4.8963, 52.3797]);
+    //   directions.addWaypoint(2, [4.8926, 52.3762]);
+    //   directions.setDestination([4.8926, 52.3762]);
+
+    //   console.log(directions.getWaypoints());
+
+    //   console.log(data.length);
+    //   for (let i = 0; i < data.length; i++) {
+    //     console.log(data[i].coordinates);
+    //   }
+    // });
 
     map.addControl(directions, "top-left");
 
-    map.addLayer(new MapboxLayer({ id: "grid-cell-layer", deck }));
+    // map.addLayer(new MapboxLayer({ id: "grid-cell-layer", deck }));
   };
+
+  
 
   componentDidMount() {
     let start = getNowHourISO();
@@ -119,10 +168,13 @@ export default class App extends React.Component {
         this.setState({ data });
       }
     );
+
+
+
   }
 
   render() {
-    const data = this.state.data;
+    data = this.state.data;
     const cellSize = 50;
     const elevation = scaleLinear([0, 10], [0, 2]);
 
@@ -155,7 +207,7 @@ export default class App extends React.Component {
         mapStyle={mapStyle}
         mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
         maxZoom={25}
-        minZoom={13}
+        minZoom={9}
         onLoad={this._onMapLoad}
         {...this.state.viewport}
         onViewportChange={viewport => this.setState({ viewport })}
@@ -164,6 +216,14 @@ export default class App extends React.Component {
           this._map = ref && ref.getMap();
         }}
       >
+        <Marker
+          latitude={52.37894}
+          longitude={4.89792}
+          offsetLeft={-20}
+          offsetTop={-10}
+        >
+          <div className="marker" />
+        </Marker>
         <DeckGL
           ref={ref => {
             // save a reference to the Deck instance
