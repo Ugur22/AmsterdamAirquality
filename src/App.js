@@ -3,6 +3,7 @@ import DeckGL, { GridCellLayer } from "deck.gl";
 import { StaticMap } from "react-map-gl";
 import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
 // import {mapStyle} from './settings/mapStyle'
+import { MapboxLayer } from "@deck.gl/mapbox";
 
 import { color, getColorArray } from "./settings/util";
 import { scaleLinear } from "d3-scale";
@@ -15,16 +16,16 @@ import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 
 const MAPBOX_ACCESS_TOKEN =
   "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
-const mapStyle = "mapbox://styles/ugur22/cjw1xdexp03td1crpzxagiywf";
+const mapStyle = "mapbox://styles/ugur22/cjvpc96ky16c91ck6woz0ih5d";
 
 const INITIAL_VIEW_STATE = {
   longitude: 4.8972,
   latitude: 52.3709,
   zoom: 12,
-  maxZoom:25,
-  minZoom:12,
+  maxZoom: 16,
+  minZoom: 12,
   pitch: 60,
-  bearing: 5,
+  bearing: 5
 };
 
 let data;
@@ -118,6 +119,7 @@ export default class App extends React.Component {
   // Add deck layer to mapbox
   _onMapLoad = () => {
     const map = this._map;
+    const deck = this._deck;
 
     directions.on("destination", function(Profile) {
       //   console.log(Profile);
@@ -140,6 +142,7 @@ export default class App extends React.Component {
 
     map.addControl(directions, "top-left");
 
+    map.addLayer(new MapboxLayer({ id: "grid-cell-layer", deck }));
   };
 
   componentDidMount() {
@@ -163,6 +166,7 @@ export default class App extends React.Component {
 
   render() {
     data = this.state.data;
+    const {gl} = this.state;
     const cellSize = 50;
     const elevation = scaleLinear([0, 10], [0, 2]);
     const { viewstate } = this.props;
@@ -194,29 +198,31 @@ export default class App extends React.Component {
 
     return (
       <div>
-      <DeckGL
-        ref={ref => {
-          // save a reference to the Deck instance
-          this._deck = ref && ref.deck;
-        }}
-        layers={layers}
-        initialViewState={INITIAL_VIEW_STATE}
-        viewState={viewstate}
-        controller={true}
-      >
-        <StaticMap
-          mapStyle={mapStyle}
-          mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
-          onLoad={this._onMapLoad}
+        <DeckGL
           ref={ref => {
-            // save a reference to the mapboxgl.Map instance
-            this._map = ref && ref.getMap();
+            // save a reference to the Deck instance
+            this._deck = ref && ref.deck;
           }}
-        />
-
-        {this.renderTooltip.bind(this)}
-        {this.renderStation.bind(this)}
-      </DeckGL>
+          layers={layers}
+          initialViewState={INITIAL_VIEW_STATE}
+          controller={true}
+          onWebGLInitialized={this._onWebGLInitialized}
+        >
+          {gl && (
+            <StaticMap
+              ref={ref => {
+                // save a reference to the mapboxgl.Map instance
+                this._map = ref && ref.getMap();
+              }}
+              gl={gl}
+              mapStyle={mapStyle}
+              mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
+              onLoad={this._onMapLoad}
+            />
+          )}
+          {this.renderTooltip.bind(this)}
+          {this.renderStation.bind(this)}
+        </DeckGL>
       </div>
     );
   }
