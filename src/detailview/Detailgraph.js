@@ -11,6 +11,7 @@ import {
   Tooltip,
   Label,
   Brush,
+  ResponsiveContainer,
   Legend
 } from "recharts";
 
@@ -88,9 +89,9 @@ class Detailgraph extends React.Component {
             <p className="Panel-subtext">
               {stationInfo.data.description.NL}
             </p>
-
+            <ResponsiveContainer width="100%" height={460}>
             <LineChart
-              width={900}
+              width={920}
               height={500}
               data={data}
               margin={{
@@ -109,7 +110,7 @@ class Detailgraph extends React.Component {
                 dataKey="timestamp_measured"
                 tickFormatter={this.xAxisTickFormatter}
               />
-              <YAxis type="number" domain={[0, 160]}  >
+              <YAxis type="number" domain={[0, 150]}  >
               <Label angle={-90} value='stikstofdioxide (NO2)'  position='insideLeft' style={{textAnchor: 'middle'}} />
               </YAxis>
               <Tooltip content={this.CustomTooltip} />
@@ -132,15 +133,17 @@ class Detailgraph extends React.Component {
                 dataKey="value"
                 stroke="#000000"
                 name="N02"
+                type="natural"
                 dot={false}
+                travellerWidth={4}
                 strokeWidth={1}
                 activeDot={{ r: 5 }}
               />
               <Brush
                 dataKey="timestamp_measured"
                 tickFormatter={this.xAxisTickFormatter}
-                height={30}
-                width={780}
+                height={40}
+                width={850}
                 stroke="#34b5bb"
               >
                 <LineChart>
@@ -155,6 +158,7 @@ class Detailgraph extends React.Component {
                 </LineChart>
               </Brush>
             </LineChart>
+            </ResponsiveContainer>
             <p className="explain-N02"> 
         De hoogste concentraties stikstofdioxide (NO2) komen voor tijdens de ochtend- en avondspits. Deze stof komt vrij door het (weg)verkeer, energieproductie en industrie. Daarnaast ontstaat NO2 uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van 40 (μg/m3)
         </p>

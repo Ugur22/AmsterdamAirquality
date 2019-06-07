@@ -1,27 +1,29 @@
 import React from "react";
 import DeckGL, { GridCellLayer } from "deck.gl";
 import { StaticMap } from "react-map-gl";
-import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
 // import {mapStyle} from './settings/mapStyle'
-import { MapboxLayer } from "@deck.gl/mapbox";
 
 import { color, getColorArray } from "./settings/util";
 import { scaleLinear } from "d3-scale";
-import Detailgraph from "./detailview/Detailgraph";
 import { getNowHourISO } from "./settings/time";
 import InfoPanel from "./InfoPanel";
-
-import "./css/direction.scss";
+import AirQualityRange from "./dataRange/AirQualityRange";
+import Detailgraph from "./detailview/Detailgraph";
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
+
+import Airqualityinfo from "./dataRange/Airqualityinfo";
+import RangePanel from "./dataRange/RangePanel";
+import { Accordion, AccordionItem } from "react-light-accordion";
+import "react-light-accordion/demo/css/index.css";
 
 const MAPBOX_ACCESS_TOKEN =
   "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
-const mapStyle = "mapbox://styles/ugur22/cjvpc96ky16c91ck6woz0ih5d";
+const mapStyle = "mapbox://styles/ugur22/cjw1xdexp03td1crpzxagiywf";
 
 const INITIAL_VIEW_STATE = {
   longitude: 4.8972,
   latitude: 52.3709,
-  zoom: 12,
+  zoom: 13,
   maxZoom: 16,
   minZoom: 12,
   pitch: 60,
@@ -30,53 +32,23 @@ const INITIAL_VIEW_STATE = {
 
 let data;
 
-let directions = new MapboxDirections({
-  accessToken: MAPBOX_ACCESS_TOKEN,
-  unit: "metric",
-  profile: "mapbox/cycling",
-  congestion: true,
-  alternatives: true,
-  flyTo: false,
-  interactive: true,
-  controls: {
-    // instructions:false
-  }
-});
-
 export default class App extends React.Component {
   state = {};
-
-  _onWebGLInitialized = gl => {
-    this.setState({ gl });
-  };
 
   constructor(props) {
     super();
 
     this.state = {
       data: [],
-      stationInfo: null
+      stationInfo: null,
+      render: true
     };
 
     this.closeInfoPanel = this.closeInfoPanel.bind(this);
   }
 
   renderTooltip() {
-    let { hoveredObject, pointerX, pointerY, stationName } = this.state || {};
-
-    // if(hoveredObject) {
-
-    //   const urlInfo = [
-    //     `https://data.waag.org/api/getOfficialStations?station_id=${hoveredObject.station_number}`,
-    //   ];
-
-    //   Promise.all(urlInfo.map(url => fetch(url).then(resp => resp.json()))).then(
-    //     ([stationInfo]) => {
-    //       stationName = stationInfo.data.location;
-    //       this.setState({stationName });
-    //     }
-    //   );
-    // }
+    let { hoveredObject, pointerX, pointerY } = this.state || {};
 
     return (
       hoveredObject && (
@@ -100,7 +72,8 @@ export default class App extends React.Component {
 
   closeInfoPanel() {
     this.setState({
-      clickedObject: null
+      clickedObject: null,
+      render: false
     });
   }
 
@@ -115,35 +88,6 @@ export default class App extends React.Component {
       );
     }
   }
-
-  // Add deck layer to mapbox
-  _onMapLoad = () => {
-    const map = this._map;
-    const deck = this._deck;
-
-    directions.on("destination", function(Profile) {
-      //   console.log(Profile);
-
-      // directions.setOrigin([4.89792, 52.37894]);
-      // directions.addWaypoint(0, [4.89792, 52.37894]);
-      // directions.addWaypoint(1, [4.8963, 52.3797]);
-      // directions.addWaypoint(2, [4.8926, 52.3762]);
-      // directions.setDestination([4.8926, 52.3762]);
-
-      console.log(directions.getWaypoints());
-      console.log(directions);
-
-      //   console.log(data.length);
-      //   for (let i = 0; i < data.length; i++) {
-      //     console.log(data[i].coordinates);
-      //   }
-      console.log(directions.getDestination());
-    });
-
-    map.addControl(directions, "top-left");
-
-    map.addLayer(new MapboxLayer({ id: "grid-cell-layer", deck }));
-  };
 
   componentDidMount() {
     let start = getNowHourISO();
@@ -166,10 +110,8 @@ export default class App extends React.Component {
 
   render() {
     data = this.state.data;
-    const {gl} = this.state;
     const cellSize = 50;
-    const elevation = scaleLinear([0, 10], [0, 2]);
-    const { viewstate } = this.props;
+    const elevation = scaleLinear([0, 10], [0, 1]);
 
     const layers = [
       new GridCellLayer({
@@ -181,7 +123,7 @@ export default class App extends React.Component {
         getPosition: d => d.coordinates,
         cellSize: cellSize,
         elevationScale: 50,
-        getColor: d => getColorArray(color(d.value, [0, 25])),
+        getColor: d => getColorArray(color(d.value, [0, 60])),
         getElevation: d => elevation(d.value),
         onHover: info =>
           this.setState({
@@ -199,30 +141,85 @@ export default class App extends React.Component {
     return (
       <div>
         <DeckGL
-          ref={ref => {
-            // save a reference to the Deck instance
-            this._deck = ref && ref.deck;
-          }}
           layers={layers}
           initialViewState={INITIAL_VIEW_STATE}
           controller={true}
-          onWebGLInitialized={this._onWebGLInitialized}
         >
-          {gl && (
-            <StaticMap
-              ref={ref => {
-                // save a reference to the mapboxgl.Map instance
-                this._map = ref && ref.getMap();
-              }}
-              gl={gl}
-              mapStyle={mapStyle}
-              mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
-              onLoad={this._onMapLoad}
-            />
-          )}
+          <StaticMap
+            mapStyle={mapStyle}
+            mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
+          />
           {this.renderTooltip.bind(this)}
           {this.renderStation.bind(this)}
         </DeckGL>
+        <Airqualityinfo>
+          <Accordion atomic={true}>
+            <AccordionItem title="Wat is NO2?">
+              <p>
+                NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon.
+                Het weer en de verkeersdrukte hebben grote invloed op de
+                concentratie. De wettelijke norm is een jaargemiddelde van 40
+                (μg/m3).
+              </p>
+            </AccordionItem>
+
+            <AccordionItem title="Wat is de bedoeling van dit platform?">
+              <p>
+                De bedoeling van dit platform is om erachter te komen of fietser
+                in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid
+                beinvloed. Verder zijn we ook aan het kijken hoe deze kennis
+                omgezet kan worden in gedragsverandeing.
+              </p>
+            </AccordionItem>
+
+            <AccordionItem title="Hoe werkt het?">
+              <p>
+                Op de kaart zie je verschillende stations in Amsterdam die
+                luchtkwaliteit meten. Deze stations zijn van het RIVM en meten
+                de NO2 waardes van dat gebied. Hoe hoger de waardes hoe slechter
+                de luchtkwaliteit is. Verder kan je door te hoveren op een
+                station het laatste uurgemiddelde zijn van dat station. Door op
+                het station te klikken kan je een detailoverzicht zien die het
+                uurgemiddelde toont over de gehele maand.
+              </p>
+            </AccordionItem>
+          </Accordion>
+        </Airqualityinfo>
+        <RangePanel>
+          <AirQualityRange />
+        </RangePanel>
+        {this.state.render ? (
+          <div className="explainPopup">
+            <InfoPanel closeInfoPanel={this.closeInfoPanel}>
+              <h1>Wat is Koolstofdioxide(No2)?</h1>
+              <p>
+                NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon.
+                Het weer en de verkeersdrukte hebben grote invloed op de
+                concentratie. De wettelijke norm is een jaargemiddelde van 40
+                (μg/m3).
+              </p>
+
+              <h1>Wat is de bedoeling van dit platform?</h1>
+              <p>
+                De bedoeling van dit platform is om erachter te komen of fietser
+                in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid
+                beinvloed. Verder zijn we ook aan het kijken hoe deze kennis
+                omgezet kan worden in gedragsverandeing.
+              </p>
+
+              <h1>Hoe werkt het?</h1>
+              <p>
+                Op de kaart zie je verschillende stations in Amsterdam die
+                luchtkwaliteit meten. Deze stations zijn van het RIVM en meten
+                de NO2 waardes van dat gebied. Hoe hoger de waardes hoe slechter
+                de luchtkwaliteit is. Verder kan je door te hoveren op een
+                station het laatste uurgemiddelde zijn van dat station. Door op
+                het station te klikken kan je een detailoverzicht zien die het
+                uurgemiddelde toont over de gehele maand.
+              </p>
+            </InfoPanel>
+          </div>
+        ) : null}
       </div>
     );
   }
