@@ -10,13 +10,8 @@ import AccordionInfo from "./dataRange/AccordionInfo";
 import "react-light-accordion/demo/css/index.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import InfoPanel from "./InfoPanel";
-import {
-  CircleMode,
-  DirectMode,
-  SimpleSelectMode
-} from "mapbox-gl-draw-circle";
+import { circles } from "./settings/radiusCircles";
 import MapboxCircle from "mapbox-gl-circle";
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
 mapboxgl.accessToken =
   "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
@@ -26,27 +21,7 @@ let directions = new MapboxDirections({
   unit: "metric",
   profile: "mapbox/cycling",
   congestion: true,
-  alternatives: true,
-  styles: [
-    {
-      id: "directions-route-line-alt",
-      type: "line",
-      source: "directions",
-      layout: {
-        "line-cap": "round",
-        "line-join": "round"
-      },
-      paint: {
-        "line-color": "rgba(195, 195, 195, 0.6)",
-        "line-width": 10
-      },
-      filter: [
-        "all",
-        ["in", "$type", "LineString"],
-        ["in", "route", "alternate"]
-      ]
-    }
-  ],
+  alternatives: false,
   flyTo: false,
   zoom: 13,
   interactive: true,
@@ -64,13 +39,16 @@ const { lng, lat, zoom } = {
   zoom: 13
 };
 
+let score;
+
 export default class Direction extends React.Component {
   constructor(props) {
     super();
 
     this.state = {
       data: [],
-      render: true
+      render: true,
+      score: 0
     };
 
     this.closeInfoPanel = this.closeInfoPanel.bind(this);
@@ -82,76 +60,161 @@ export default class Direction extends React.Component {
     });
   }
 
+  getDistanceFromLatLonInMeters(latitude1, longitude1, latitude2, longitude2) {
+    var p = 0.017453292519943295; //This is  Math.PI / 180
+    var c = Math.cos;
+    var a =
+      0.5 -
+      c((latitude2 - latitude1) * p) / 2 +
+      (c(latitude1 * p) *
+        c(latitude2 * p) *
+        (1 - c((longitude2 - longitude1) * p))) /
+        2;
+    var R = 6371;
+    var dist = 2 * R * Math.asin(Math.sqrt(a) * 1000);
+
+    return dist.toFixed(0);
+  }
+
   componentDidMount() {
+    score = this.state.score;
+
     const map = new mapboxgl.Map({
       container: this.mapContainer, // See https://blog.mapbox.com/mapbox-gl-js-react-764da6cc074a
       style: "mapbox://styles/ugur22/cjvpc96ky16c91ck6woz0ih5d",
       center: [lng, lat],
-      zoom,
-      containerStyle: {
-        height: "100vh",
-        width: "100vw"
-      }
+      zoom
     });
 
     map.on("load", () => {
       map.resize();
     });
+    let radiusAirQuality;
+    let coordinatesCirkels = [];
+    let locationsStep = [];
+    let circlesCenter = [];
+    let steps = [];
 
-    let myCircle = new MapboxCircle({ lat: 52.366811, lng: 4.793344 }, 1200, {
-      editable: false,
-      minRadius: 1500,
-      fillColor: "#24ca4a"
-    }).addTo(map);
+    for (let i = 0; i < circles.length; i++) {
+      radiusAirQuality = new MapboxCircle(
+        { lat: circles[i].geometry.lat, lng: circles[i].geometry.lng },
+        1200,
+        {
+          editable: false,
+          minRadius: 1500,
+          strokeWeight: 1,
+          refineStroke: true,
+          strokeOpacity: 1,
+          strokeColor: "#000000",
+          fillColor: circles[i].color
+        }
+      );
+      radiusAirQuality.addTo(map);
+      circlesCenter.push(radiusAirQuality);
+      coordinatesCirkels.push(radiusAirQuality._circle);
+    }
 
-    let myCircle2 = new MapboxCircle({ lat: 52.320692, lng: 4.988397 }, 1200, {
-      editable: false,
-      minRadius: 1500,
-      fillColor: "#24ca4a"
-    }).addTo(map);
+    directions.on("route", direction => {
+      steps = [];
+      this.setState({
+        score: (score = 0)
+      });
 
-    let myCircle3 = new MapboxCircle({ lat: 52.374786, lng: 4.860319 }, 1200, {
-      editable: false,
-      minRadius: 1500,
-      fillColor: "#fdd082"
-    }).addTo(map);
+      if (directions.getWaypoints().length > 0) {
+        steps = [];
+        for (let i = 0; i < direction.route[0].legs[0].steps.length; i++) {
+          steps.push(direction.route[0].legs[0].steps[i]);
+        }
 
-    let myCircle4 = new MapboxCircle({ lat: 52.372056, lng: 4.9044 }, 1200, {
-      editable: false,
-      minRadius: 1500,
-      fillColor: "#55bd6d"
-    }).addTo(map);
+        for (let i = 0; i < direction.route[0].legs[1].steps.length; i++) {
+          steps.push(direction.route[0].legs[1].steps[i]);
+        }
+      } else {
+        for (let i = 0; i < direction.route[0].legs[0].steps.length; i++) {
+          steps.push(direction.route[0].legs[0].steps[i]);
+        }
+      }
 
-    let myCircle5 = new MapboxCircle({ lat: 52.359714, lng: 4.866208 }, 1200, {
-      editable: false,
-      minRadius: 1500,
-      fillColor: "#a50026"
-    }).addTo(map);
+      for (let j = 0; j < steps.length; j++) {
+        locationsStep.push(steps[j].maneuver.location);
+      }
 
-    let myCircle6 = new MapboxCircle({ lat: 52.389983, lng: 4.887811 }, 1200, {
-      editable: false,
-      minRadius: 1500,
-      fillColor: "#a50026"
-    }).addTo(map);
+      console.log(locationsStep);
 
-    let myCircle7 = new MapboxCircle({ lat: 52.381331, lng: 4.845233 }, 1200, {
-      editable: false,
-      minRadius: 1500,
-      fillColor: "#fdd082"
-    }).addTo(map);
+      for (let i = 0; i < circlesCenter.length; i++) {
+        for (let j = 0; j < locationsStep.length; j++) {
+          let checkHit = this.getDistanceFromLatLonInMeters(
+            locationsStep[j][1],
+            locationsStep[j][0],
+            circlesCenter[i]._lastCenterLngLat[1],
+            circlesCenter[i]._lastCenterLngLat[0]
+          );
 
-    let myCircle8 = new MapboxCircle({ lat: 52.389314, lng: 4.943822 }, 1200, {
-      editable: false,
-      minRadius: 1500,
-      fillColor: "#fdd082"
-    }).addTo(map);
+          if (checkHit <= 1200) {
 
-    let myCircle9 = new MapboxCircle({ lat: 52.385422, lng: 4.87575 }, 1200, {
-      editable: false,
-      minRadius: 1500,
-      fillColor: "#fdd082"
-    }).addTo(map);
+            
+            if (circlesCenter[i].options.fillColor === "#fdd082") {
+              console.log("#fdd082")
+              this.setState({
+                score: (score = score - 4)
+              });
+            }
 
+            if (circlesCenter[i].options.fillColor === "#24ca4a") {
+              console.log("#24ca4a")
+              this.setState({
+                score: (score = score + 8)
+              });
+            }
+
+            if (circlesCenter[i].options.fillColor === "#a50026") {
+              console.log("#a50026")
+              this.setState({
+                score: (score = score - 8)
+              });
+            }
+
+            if (circlesCenter[i].options.fillColor === "#55BD6D") {
+              console.log("#55BD6D")
+              this.setState({
+                score: (score = score + 4)
+              });
+            }
+
+            if (circlesCenter[i].options.fillColor === "#fdd082") {
+              console.log("#fdd082")
+              this.setState({
+                score: (score = score - 2)
+              });
+            }
+          }
+        }
+      }
+      locationsStep = [];
+
+    });
+
+    for (let i = 0; i < coordinatesCirkels.length; i++) {
+      // let circleOuterBounds = coordinatesCirkels[i].geometry.coordinates[0];
+      // for (let j = 0; j < circleOuterBounds.length; j++) {
+      //   // console.log( circleOuterBounds[j][1]);
+      //   // console.log( circleOuterBounds[j][0]);
+      //   let radiusAirQualitys = new MapboxCircle(
+      //     {
+      //       lat: circleOuterBounds[j][1],
+      //       lng: circleOuterBounds[j][0]
+      //     },
+      //     10,
+      //     {
+      //       editable: false,
+      //       minRadius: 1500,
+      //       fillOpacity: 1,
+      //       fillColor: "#000000"
+      //     }
+      //   );
+      //   radiusAirQualitys.addTo(map);
+      // }
+    }
     map.addControl(directions, "top-left");
   }
 
@@ -162,7 +225,6 @@ export default class Direction extends React.Component {
       bottom: 0,
       width: "100%"
     };
-
     return (
       <div className="map-wrapper">
         <div
@@ -172,6 +234,20 @@ export default class Direction extends React.Component {
           className="map"
         />
         <Airqualityinfo>
+          <div className="score">
+            <h3>Score: {this.state.score}</h3>
+            {this.state.score > 0 && (
+              <p role="image" aria-label="hamburger">
+                😀 Met deze route wordt je minder blootgesteld aan
+                luchtvervuiling
+              </p>
+            )}
+            {this.state.score < 0 && (
+              <p role="image" aria-label="hamburger">
+                😧 Er is teveel luchtvervuiling op deze route. Pas je route aan
+              </p>
+            )}
+          </div>
           <AccordionInfo />
         </Airqualityinfo>
         <RangePanel>
