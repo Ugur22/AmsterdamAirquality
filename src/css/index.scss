@@ -12,6 +12,18 @@ body {
   padding-left: 9px;
 }
 
+.explainApp {
+  height: 150px;
+  width: 90%;
+  margin:0 auto;
+}
+
+.explainApp img {
+    width: 30%;
+    height: 100%;
+    padding: 2px;
+}
+
 .table.is-striped tbody tr:not(.is-selected):nth-child(2n):hover,
 tbody tr:hover,
 tbody th:hover {

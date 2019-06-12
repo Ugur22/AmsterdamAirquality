@@ -13,7 +13,7 @@ export const circles = [
       lng: 4.988397
     },
 
-    color: "#24ca4a"
+    color: "#fdd082"
   },
   {
     geometry: {
@@ -21,7 +21,7 @@ export const circles = [
       lng: 4.860319
     },
 
-    color: "#fdd082"
+    color: "#a50026"
   },
   {
     geometry: {
@@ -37,7 +37,7 @@ export const circles = [
       lng: 4.866208
     },
 
-    color: "#a50026"
+    color: "#24ca4a"
   },
   {
     geometry: {
@@ -53,7 +53,7 @@ export const circles = [
       lng: 4.943822
     },
 
-    color: "#fdd082"
+    color: "#24ca4a"
   },
   {
     geometry: {
@@ -61,7 +61,7 @@ export const circles = [
       lng: 4.87575
     },
 
-    color: "#fdd082"
+    color: "#a50026"
   },
   {
     geometry: {
@@ -70,5 +70,13 @@ export const circles = [
     },
 
     color: "#fdd082"
+  },
+  {
+    geometry: {
+      lat: 52.358039,
+      lng: 4.8997
+    },
+
+    color: "#e67e22"
   }
 ];

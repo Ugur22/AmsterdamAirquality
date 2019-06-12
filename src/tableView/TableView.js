@@ -72,6 +72,7 @@ class TableView extends React.Component {
     this.renderStation = this.renderStation.bind(this);
     data = this.state.data;
 
+
     if (this.state.render != null) {
       for (let i = 0; i < data.length; i++) {
         for (let j = 0; j < station_locations.length; j++) {
@@ -94,8 +95,8 @@ class TableView extends React.Component {
               <tr>
                 <th>station locatie</th>
                 <th>station ID</th>
-                <th>Laatste uurgemiddelde waarde</th>
-                <th>formule</th>
+                <th>laatste uurgemiddelde</th>
+                <th>stof</th>
               </tr>
             </thead>
             <tbody>
@@ -104,7 +105,7 @@ class TableView extends React.Component {
                   key={item.station_number}
                   onClick={e => this.renderStation(e, item.station_number)}
                 >
-                  <th> {item.location} </th>
+                  <td> {item.location} </td>
                   <td>{item.station_number}</td>
                   <td> {item.value} µg/m3</td>
                   <td> {item.formula}</td>

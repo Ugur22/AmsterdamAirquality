@@ -94,18 +94,20 @@ export default class Direction extends React.Component {
     let locationsStep = [];
     let circlesCenter = [];
     let steps = [];
+    let radiusCircle = 1200;
 
     for (let i = 0; i < circles.length; i++) {
       radiusAirQuality = new MapboxCircle(
         { lat: circles[i].geometry.lat, lng: circles[i].geometry.lng },
-        1200,
+        radiusCircle,
         {
           editable: false,
           minRadius: 1500,
           strokeWeight: 1,
           refineStroke: true,
           strokeOpacity: 1,
-          strokeColor: "#000000",
+          fillOpacity: 0.2,
+          strokeColor: circles[i].color,
           fillColor: circles[i].color
         }
       );
@@ -150,39 +152,37 @@ export default class Direction extends React.Component {
             circlesCenter[i]._lastCenterLngLat[0]
           );
 
-          if (checkHit <= 1200) {
-
-            
+          if (checkHit <= radiusCircle) {
             if (circlesCenter[i].options.fillColor === "#fdd082") {
-              console.log("#fdd082")
+              console.log("#fdd082");
               this.setState({
                 score: (score = score - 4)
               });
             }
 
             if (circlesCenter[i].options.fillColor === "#24ca4a") {
-              console.log("#24ca4a")
+              console.log("#24ca4a");
               this.setState({
                 score: (score = score + 8)
               });
             }
 
             if (circlesCenter[i].options.fillColor === "#a50026") {
-              console.log("#a50026")
+              console.log("#a50026");
               this.setState({
                 score: (score = score - 8)
               });
             }
 
             if (circlesCenter[i].options.fillColor === "#55BD6D") {
-              console.log("#55BD6D")
+              console.log("#55BD6D");
               this.setState({
                 score: (score = score + 4)
               });
             }
 
-            if (circlesCenter[i].options.fillColor === "#fdd082") {
-              console.log("#fdd082")
+            if (circlesCenter[i].options.fillColor === "#e67e22") {
+              console.log("#e67e22");
               this.setState({
                 score: (score = score - 2)
               });
@@ -191,30 +191,29 @@ export default class Direction extends React.Component {
         }
       }
       locationsStep = [];
-
     });
 
-    for (let i = 0; i < coordinatesCirkels.length; i++) {
-      // let circleOuterBounds = coordinatesCirkels[i].geometry.coordinates[0];
-      // for (let j = 0; j < circleOuterBounds.length; j++) {
-      //   // console.log( circleOuterBounds[j][1]);
-      //   // console.log( circleOuterBounds[j][0]);
-      //   let radiusAirQualitys = new MapboxCircle(
-      //     {
-      //       lat: circleOuterBounds[j][1],
-      //       lng: circleOuterBounds[j][0]
-      //     },
-      //     10,
-      //     {
-      //       editable: false,
-      //       minRadius: 1500,
-      //       fillOpacity: 1,
-      //       fillColor: "#000000"
-      //     }
-      //   );
-      //   radiusAirQualitys.addTo(map);
-      // }
-    }
+    // for (let i = 0; i < coordinatesCirkels.length; i++) {
+    // let circleOuterBounds = coordinatesCirkels[i].geometry.coordinates[0];
+    // for (let j = 0; j < circleOuterBounds.length; j++) {
+    //   // console.log( circleOuterBounds[j][1]);
+    //   // console.log( circleOuterBounds[j][0]);
+    //   let radiusAirQualitys = new MapboxCircle(
+    //     {
+    //       lat: circleOuterBounds[j][1],
+    //       lng: circleOuterBounds[j][0]
+    //     },
+    //     10,
+    //     {
+    //       editable: false,
+    //       minRadius: 1500,
+    //       fillOpacity: 1,
+    //       fillColor: "#000000"
+    //     }
+    //   );
+    //   radiusAirQualitys.addTo(map);
+    // }
+    // }
     map.addControl(directions, "top-left");
   }
 
@@ -225,6 +224,7 @@ export default class Direction extends React.Component {
       bottom: 0,
       width: "100%"
     };
+
     return (
       <div className="map-wrapper">
         <div
@@ -237,15 +237,34 @@ export default class Direction extends React.Component {
           <div className="score">
             <h3>Score: {this.state.score}</h3>
             {this.state.score > 0 && (
-              <p role="image" aria-label="hamburger">
-                😀 Met deze route wordt je minder blootgesteld aan
-                luchtvervuiling
-              </p>
+              <div>
+                <span  label="smile" role="img" aria-label="smile" className="emoji">
+                  😀
+                </span>
+                <p>
+                  Dit is een veilige route je wordt nauwlijks blootgesteld aan
+                  luchtvervuiling.
+                </p>
+              </div>
             )}
-            {this.state.score < 0 && (
-              <p role="image" aria-label="hamburger">
-                😧 Er is teveel luchtvervuiling op deze route. Pas je route aan
-              </p>
+            {this.state.score < 0 && this.state.score > -30 && (
+              <div>
+                <span label="thinking"  role="img" aria-label="thinking" className="emoji">🤔</span>
+                <p>
+                  Met deze route wordt je minder blootgesteld aan
+                  luchtvervuiling maar het kan beter!
+                </p>
+              </div>
+            )}
+            {this.state.score < -30 && (
+              <div>
+                <span label="sick"  role="img" aria-label="sick" className="emoji">
+                  😷
+                </span>
+                <p>
+                  Er is teveel luchtvervuiling op deze route. Pas je route aan!
+                </p>
+              </div>
             )}
           </div>
           <AccordionInfo />
@@ -281,8 +300,24 @@ export default class Direction extends React.Component {
                 de luchtkwaliteit is. Op basis de informatie die je op de kaart
                 krijgt over de luchtkwaliteit kan je een route plannen. Maak
                 gebruik van de route planner linksboven of kies een bestemming
-                en vetrekpunt door op de kaart te klikken.
+                en vetrekpunt door op de kaart te klikken. Op basis van je rute
+                krijg je een score met een uitleg die aangeeft hoe veilig de
+                route voor je is.
               </p>
+              <div className="explainApp">
+                <img
+                  src="asset/img/explain-1.png"
+                  alt="stap 1 kies een vetrekpunt"
+                />
+                <img
+                  src="asset/img/explain-2.png"
+                  alt=" stap 2 maak ene route "
+                />
+                <img
+                  src="asset/img/explain-3.png"
+                  alt="stap 3 check je score"
+                />
+              </div>
             </InfoPanel>
           </div>
         ) : null}

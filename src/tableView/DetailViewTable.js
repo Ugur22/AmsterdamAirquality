@@ -112,7 +112,7 @@ class DetailViewTable extends React.Component {
                     style={{ textAnchor: "middle" }}
                   />
                 </YAxis>
-                <Tooltip content={this.CustomTooltip} />
+                <Tooltip content={this.CustomTooltip} animationDuration={0} />
                 <Bar dataKey="value" name="N02" fill="#00d1b2" />
                 <Brush
                   dataKey="timestamp_measured"
