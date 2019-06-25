@@ -11,7 +11,6 @@ class RangePanel extends React.Component {
     return (
       <div className="info-rangePanel">
         <div className="content-airQuality">{this.props.children}</div>
-     
       </div>
     );
   }

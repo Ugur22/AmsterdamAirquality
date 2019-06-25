@@ -16,8 +16,7 @@ import RangePanel from "./dataRange/RangePanel";
 import { Accordion, AccordionItem } from "react-light-accordion";
 import "react-light-accordion/demo/css/index.css";
 
-const MAPBOX_ACCESS_TOKEN =
-  "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
+const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
 const mapStyle = "mapbox://styles/ugur22/cjw1xdexp03td1crpzxagiywf";
 
 const INITIAL_VIEW_STATE = {
@@ -60,8 +59,7 @@ export default class App extends React.Component {
             pointerEvents: "none",
             left: pointerX,
             top: pointerY
-          }}
-        >
+          }}>
           <span>{hoveredObject.formula}</span>
           <br />
           Laatste uurgemiddelde: {hoveredObject.value} μg/m3
@@ -96,16 +94,14 @@ export default class App extends React.Component {
       station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&&station_id=NL49021&&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016`
     ];
 
-    Promise.all(urls.map(url => fetch(url).then(resp => resp.json()))).then(
-      ([results]) => {
-        const data = results.map(station => {
-          station.coordinates = station.coordinates.reverse();
-          return station;
-        });
+    Promise.all(urls.map(url => fetch(url).then(resp => resp.json()))).then(([results]) => {
+      const data = results.map(station => {
+        station.coordinates = station.coordinates.reverse();
+        return station;
+      });
 
-        this.setState({ data });
-      }
-    );
+      this.setState({ data });
+    });
   }
 
   render() {
@@ -140,15 +136,8 @@ export default class App extends React.Component {
 
     return (
       <div>
-        <DeckGL
-          layers={layers}
-          initialViewState={INITIAL_VIEW_STATE}
-          controller={true}
-        >
-          <StaticMap
-            mapStyle={mapStyle}
-            mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
-          />
+        <DeckGL layers={layers} initialViewState={INITIAL_VIEW_STATE} controller={true}>
+          <StaticMap mapStyle={mapStyle} mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} />
           {this.renderTooltip.bind(this)}
           {this.renderStation.bind(this)}
         </DeckGL>
@@ -156,31 +145,23 @@ export default class App extends React.Component {
           <Accordion atomic={true}>
             <AccordionItem title="Wat is NO2?">
               <p>
-                NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon.
-                Het weer en de verkeersdrukte hebben grote invloed op de
-                concentratie. De wettelijke norm is een jaargemiddelde van 40
+                NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van 40
                 (μg/m3).
               </p>
             </AccordionItem>
 
             <AccordionItem title="Wat is de bedoeling van dit platform?">
               <p>
-                De bedoeling van dit platform is om erachter te komen of fietser
-                in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid
-                beinvloed. Verder zijn we ook aan het kijken hoe deze kennis
-                omgezet kan worden in gedragsverandeing.
+                De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
+                kennis omgezet kan worden in gedragsverandeing.
               </p>
             </AccordionItem>
 
             <AccordionItem title="Hoe werkt het?">
               <p>
-                Op de kaart zie je verschillende stations in Amsterdam die
-                luchtkwaliteit meten. Deze stations zijn van het RIVM en meten
-                de NO2 waardes van dat gebied. Hoe hoger de waardes hoe slechter
-                de luchtkwaliteit is. Verder kan je door te hoveren op een
-                station het laatste uurgemiddelde zijn van dat station. Door op
-                het station te klikken kan je een detailoverzicht zien die het
-                uurgemiddelde toont over de gehele maand.
+                Op de kaart zie je verschillende stations in Amsterdam die luchtkwaliteit meten. Deze stations zijn van het RIVM en meten de NO2 waardes van dat gebied. Hoe hoger de waardes hoe
+                slechter de luchtkwaliteit is. Verder kan je door te hoveren op een station het laatste uurgemiddelde zijn van dat station. Door op het station te klikken kan je een detailoverzicht
+                zien die het uurgemiddelde toont over de gehele maand.
               </p>
             </AccordionItem>
           </Accordion>
@@ -193,29 +174,21 @@ export default class App extends React.Component {
             <InfoPanel closeInfoPanel={this.closeInfoPanel}>
               <h1>Wat is Koolstofdioxide(No2)?</h1>
               <p>
-                NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon.
-                Het weer en de verkeersdrukte hebben grote invloed op de
-                concentratie. De wettelijke norm is een jaargemiddelde van 40
+                NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van 40
                 (μg/m3).
               </p>
 
               <h1>Wat is de bedoeling van dit platform?</h1>
               <p>
-                De bedoeling van dit platform is om erachter te komen of fietser
-                in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid
-                beinvloed. Verder zijn we ook aan het kijken hoe deze kennis
-                omgezet kan worden in gedragsverandeing.
+                De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
+                kennis omgezet kan worden in gedragsverandeing.
               </p>
 
               <h1>Hoe werkt het?</h1>
               <p>
-                Op de kaart zie je verschillende stations in Amsterdam die
-                luchtkwaliteit meten. Deze stations zijn van het RIVM en meten
-                de NO2 waardes van dat gebied. Hoe hoger de waardes hoe slechter
-                de luchtkwaliteit is. Verder kan je door te hoveren op een
-                station het laatste uurgemiddelde zijn van dat station. Door op
-                het station te klikken kan je een detailoverzicht zien die het
-                uurgemiddelde toont over de gehele maand.
+                Op de kaart zie je verschillende stations in Amsterdam die luchtkwaliteit meten. Deze stations zijn van het RIVM en meten de NO2 waardes van dat gebied. Hoe hoger de waardes hoe
+                slechter de luchtkwaliteit is. Verder kan je door te hoveren op een station het laatste uurgemiddelde zijn van dat station. Door op het station te klikken kan je een detailoverzicht
+                zien die het uurgemiddelde toont over de gehele maand.
               </p>
             </InfoPanel>
           </div>

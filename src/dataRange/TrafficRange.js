@@ -11,25 +11,12 @@ class TrafficRange extends React.Component {
   render() {
     return (
       <div className="trafficGradient">
-        <p className="title">Verkeer</p>
+        <p>Verkeer</p>
         <svg width="100%" height="15">
           <defs>
-            <linearGradient
-              id="legendTraffic"
-              x1="0"
-              y1="0"
-              x2="100%"
-              y2="15"
-              gradientUnits="userSpaceOnUse"
-            >
+            <linearGradient id="legendTraffic" x1="0" y1="0" x2="100%" y2="15" gradientUnits="userSpaceOnUse">
               {colorScale[1].map((color, i) => {
-                return (
-                  <stop
-                    key={color}
-                    offset={`${0 + (i * 100) / (colorScale[1].length - 1)}%`}
-                    stopColor={color}
-                  />
-                );
+                return <stop key={color} offset={`${0 + (i * 100) / (colorScale[1].length - 1)}%`} stopColor={color} />;
               })}
             </linearGradient>
           </defs>

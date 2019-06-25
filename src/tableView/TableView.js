@@ -53,17 +53,15 @@ class TableView extends React.Component {
       station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&&station_id=NL49021&&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016`
     ];
 
-    Promise.all(urls.map(url => fetch(url).then(resp => resp.json()))).then(
-      ([results]) => {
-        const data = results.map(station => {
-          station.coordinates = station.coordinates.reverse();
+    Promise.all(urls.map(url => fetch(url).then(resp => resp.json()))).then(([results]) => {
+      const data = results.map(station => {
+        station.coordinates = station.coordinates.reverse();
 
-          return station;
-        });
+        return station;
+      });
 
-        this.setState({ data });
-      }
-    );
+      this.setState({ data });
+    });
   }
 
   render() {
@@ -72,8 +70,7 @@ class TableView extends React.Component {
     this.renderStation = this.renderStation.bind(this);
     data = this.state.data;
 
-
-    if (this.state.render != null) {
+    if (this.state.data != null) {
       for (let i = 0; i < data.length; i++) {
         for (let j = 0; j < station_locations.length; j++) {
           data[i]["location"] = station_locations[j];
@@ -101,10 +98,7 @@ class TableView extends React.Component {
             </thead>
             <tbody>
               {this.state.data.map(item => (
-                <tr
-                  key={item.station_number}
-                  onClick={e => this.renderStation(e, item.station_number)}
-                >
+                <tr key={item.station_number} onClick={e => this.renderStation(e, item.station_number)}>
                   <td> {item.location} </td>
                   <td>{item.station_number}</td>
                   <td> {item.value} µg/m3</td>

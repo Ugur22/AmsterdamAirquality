@@ -2,19 +2,17 @@ import React from "react";
 import mapboxgl from "mapbox-gl";
 import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css"; // Updating node module will keep css up to date.
-import TrafficRange from "./dataRange/TrafficRange";
-import AirQualityRange from "./dataRange/AirQualityRange";
 import Airqualityinfo from "./dataRange/Airqualityinfo";
-import RangePanel from "./dataRange/RangePanel";
 import AccordionInfo from "./dataRange/AccordionInfo";
-import "react-light-accordion/demo/css/index.css";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import InfoPanel from "./InfoPanel";
 import { circles } from "./settings/radiusCircles";
 import MapboxCircle from "mapbox-gl-circle";
+import { getNowHourISO } from "./settings/time";
+import { Accordion, AccordionItem } from "react-sanfona";
+import axios from "axios";
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
+mapboxgl.accessToken = "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
 
 let directions = new MapboxDirections({
   accessToken: mapboxgl.accessToken,
@@ -39,7 +37,7 @@ const { lng, lat, zoom } = {
   zoom: 13
 };
 
-let score;
+let score, duration, data;
 
 export default class Direction extends React.Component {
   constructor(props) {
@@ -47,8 +45,9 @@ export default class Direction extends React.Component {
 
     this.state = {
       data: [],
-      render: true,
-      score: 0
+      render: false,
+      score: 0,
+      duration
     };
 
     this.closeInfoPanel = this.closeInfoPanel.bind(this);
@@ -61,15 +60,9 @@ export default class Direction extends React.Component {
   }
 
   getDistanceFromLatLonInMeters(latitude1, longitude1, latitude2, longitude2) {
-    var p = 0.017453292519943295; //This is  Math.PI / 180
+    var p = 0.017453292519943295;
     var c = Math.cos;
-    var a =
-      0.5 -
-      c((latitude2 - latitude1) * p) / 2 +
-      (c(latitude1 * p) *
-        c(latitude2 * p) *
-        (1 - c((longitude2 - longitude1) * p))) /
-        2;
+    var a = 0.5 - c((latitude2 - latitude1) * p) / 2 + (c(latitude1 * p) * c(latitude2 * p) * (1 - c((longitude2 - longitude1) * p))) / 2;
     var R = 6371;
     var dist = 2 * R * Math.asin(Math.sqrt(a) * 1000);
 
@@ -77,8 +70,45 @@ export default class Direction extends React.Component {
   }
 
   componentDidMount() {
-    score = this.state.score;
+    // score = this.state.score;
+    let collectionMeasurements = [];
 
+    let start = getNowHourISO();
+
+    axios
+      .get(
+        `https://data.waag.org/api/getOfficialMeasurement?formula=NO2&start=${start}&end=${start}&
+        station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&&station_id=NL49021&&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016`
+      )
+      .then(response => {
+        if (response.status === 200 && response != null) {
+          this.setState({
+            data: response.data
+          });
+          collectionMeasurements.push(response.data);
+        } else {
+          throw new Error("no data available");
+        }
+      })
+      .catch(function(error) {
+        console.log(error);
+        return [];
+      });
+    console.log(collectionMeasurements);
+
+    let radiusAirQuality;
+    let coordinatesCirkels = [];
+    let locationsStep = [];
+    let circlesCenter = [];
+    let steps = [];
+    let radiusCircle = 1200;
+    score = this.state.score;
+    let data;
+
+    let stations = {
+      type: "FeatureCollection",
+      features: []
+    };
     const map = new mapboxgl.Map({
       container: this.mapContainer, // See https://blog.mapbox.com/mapbox-gl-js-react-764da6cc074a
       style: "mapbox://styles/ugur22/cjvpc96ky16c91ck6woz0ih5d",
@@ -87,47 +117,86 @@ export default class Direction extends React.Component {
     });
 
     map.on("load", () => {
-      map.resize();
-    });
-    let radiusAirQuality;
-    let coordinatesCirkels = [];
-    let locationsStep = [];
-    let circlesCenter = [];
-    let steps = [];
-    let radiusCircle = 1200;
-
-    for (let i = 0; i < circles.length; i++) {
-      radiusAirQuality = new MapboxCircle(
-        { lat: circles[i].geometry.lat, lng: circles[i].geometry.lng },
-        radiusCircle,
-        {
+      data = collectionMeasurements[0];
+      for (let i = 0; i < data.length; i++) {
+        stations.features.push({
+          type: "Feature",
+          properties: {
+            value: data[i].value + " μg/m3"
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [data[i].coordinates[1], data[i].coordinates[0]]
+          }
+        });
+      }
+      for (let i = 0; i < data.length; i++) {
+        radiusAirQuality = new MapboxCircle({ lat: data[i].coordinates[0], lng: data[i].coordinates[1] }, radiusCircle, {
           editable: false,
           minRadius: 1500,
           strokeWeight: 1,
           refineStroke: true,
           strokeOpacity: 1,
           fillOpacity: 0.2,
-          strokeColor: circles[i].color,
-          fillColor: circles[i].color
-        }
-      );
-      radiusAirQuality.addTo(map);
-      circlesCenter.push(radiusAirQuality);
-      coordinatesCirkels.push(radiusAirQuality._circle);
-    }
+          strokeColor: this.colorByValue(data[i].value),
+          fillColor: this.colorByValue(data[i].value)
+        });
+        radiusAirQuality.addTo(map);
+        circlesCenter.push(radiusAirQuality);
+        coordinatesCirkels.push(radiusAirQuality._circle);
+      }
 
+      // map.resize();
+      map.addSource("stations", {
+        type: "geojson",
+        data: stations
+      });
+      map.addLayer({
+        id: "poi-labels",
+        type: "symbol",
+        source: "stations",
+        layout: {
+          "icon-optional": true,
+          "text-field": ["get", "value"],
+          "text-variable-anchor": ["top", "bottom", "left", "right"],
+          "text-radial-offset": 0.5,
+          "text-justify": "auto",
+          "text-size": 18
+        },
+        paint: {
+          "text-color": "#ffffff"
+        }
+      });
+      map.addLayer({
+        id: "circles",
+        type: "circle",
+        source: "stations",
+        paint: {
+          "circle-color": "#ffffff"
+        }
+      });
+    });
+
+    directions.on("clear", origin => {
+      this.setState({
+        duration: 0,
+        score: 0
+      });
+    });
     directions.on("route", direction => {
+      duration = direction.route[0].duration / 60;
+      this.setState({
+        duration: duration.toFixed(0)
+      });
       steps = [];
       this.setState({
         score: (score = 0)
       });
-
       if (directions.getWaypoints().length > 0) {
         steps = [];
         for (let i = 0; i < direction.route[0].legs[0].steps.length; i++) {
           steps.push(direction.route[0].legs[0].steps[i]);
         }
-
         for (let i = 0; i < direction.route[0].legs[1].steps.length; i++) {
           steps.push(direction.route[0].legs[1].steps[i]);
         }
@@ -136,51 +205,39 @@ export default class Direction extends React.Component {
           steps.push(direction.route[0].legs[0].steps[i]);
         }
       }
-
       for (let j = 0; j < steps.length; j++) {
         locationsStep.push(steps[j].maneuver.location);
       }
-
-      console.log(locationsStep);
-
+      let checkhitCount = 0;
       for (let i = 0; i < circlesCenter.length; i++) {
         for (let j = 0; j < locationsStep.length; j++) {
-          let checkHit = this.getDistanceFromLatLonInMeters(
-            locationsStep[j][1],
-            locationsStep[j][0],
-            circlesCenter[i]._lastCenterLngLat[1],
-            circlesCenter[i]._lastCenterLngLat[0]
-          );
-
+          let checkHit = this.getDistanceFromLatLonInMeters(locationsStep[j][1], locationsStep[j][0], circlesCenter[i]._lastCenterLngLat[1], circlesCenter[i]._lastCenterLngLat[0]);
           if (checkHit <= radiusCircle) {
+            checkhitCount++;
             if (circlesCenter[i].options.fillColor === "#fdd082") {
               console.log("#fdd082");
               this.setState({
                 score: (score = score - 4)
               });
             }
-
             if (circlesCenter[i].options.fillColor === "#24ca4a") {
               console.log("#24ca4a");
               this.setState({
                 score: (score = score + 8)
               });
             }
-
             if (circlesCenter[i].options.fillColor === "#a50026") {
               console.log("#a50026");
               this.setState({
                 score: (score = score - 8)
               });
             }
-
             if (circlesCenter[i].options.fillColor === "#55BD6D") {
               console.log("#55BD6D");
               this.setState({
                 score: (score = score + 4)
               });
             }
-
             if (circlesCenter[i].options.fillColor === "#e67e22") {
               console.log("#e67e22");
               this.setState({
@@ -190,31 +247,40 @@ export default class Direction extends React.Component {
           }
         }
       }
+      if (checkhitCount <= 0) {
+        this.setState({
+          score: "De score kan niet berekent worden omdat er in dit gebied geen meetstations zijn",
+          duration: null
+        });
+      }
       locationsStep = [];
     });
-
-    // for (let i = 0; i < coordinatesCirkels.length; i++) {
-    // let circleOuterBounds = coordinatesCirkels[i].geometry.coordinates[0];
-    // for (let j = 0; j < circleOuterBounds.length; j++) {
-    //   // console.log( circleOuterBounds[j][1]);
-    //   // console.log( circleOuterBounds[j][0]);
-    //   let radiusAirQualitys = new MapboxCircle(
-    //     {
-    //       lat: circleOuterBounds[j][1],
-    //       lng: circleOuterBounds[j][0]
-    //     },
-    //     10,
-    //     {
-    //       editable: false,
-    //       minRadius: 1500,
-    //       fillOpacity: 1,
-    //       fillColor: "#000000"
-    //     }
-    //   );
-    //   radiusAirQualitys.addTo(map);
-    // }
-    // }
     map.addControl(directions, "top-left");
+  }
+
+  componentWillUnmount() {
+    this.map.remove();
+  }
+
+  colorByValue(value) {
+    let color;
+    if (value > 0 && value <= 20) {
+      color = "#24ca4a";
+    }
+
+    if (value > 20 && value <= 30) {
+      color = "#fdd082";
+    }
+
+    if (value > 30 && value <= 50) {
+      color = "#e67e22";
+    }
+
+    if (value > 50) {
+      color = "#a50026";
+    }
+
+    return color;
   }
 
   render() {
@@ -225,98 +291,75 @@ export default class Direction extends React.Component {
       width: "100%"
     };
 
+    const { data, score, duration } = this.state;
+
     return (
       <div className="map-wrapper">
-        <div
-          id="map"
-          style={style}
-          ref={el => (this.mapContainer = el)}
-          className="map"
-        />
+        <div id="map" style={style} ref={el => (this.mapContainer = el)} className="map" />
         <Airqualityinfo>
-          <div className="score">
-            <h3>Score: {this.state.score}</h3>
-            {this.state.score > 0 && (
-              <div>
-                <span  label="smile" role="img" aria-label="smile" className="emoji">
-                  😀
-                </span>
-                <p>
-                  Dit is een veilige route je wordt nauwlijks blootgesteld aan
-                  luchtvervuiling.
-                </p>
+          <Accordion>
+            <AccordionItem className="itemUp" expanded={true} title={"Advies"} expandedClassName={"itemDown"} titleTag={"h4"}>
+              <div className="score">
+                {duration ? <p>Tijdsduur route: {duration} minuten</p> : null}
+                {score ? <p> Score: {score}</p> : <p>Maak een route om een advies te krijgen</p>}
+                {score > 0 && (
+                  <div>
+                    <span label="smile" role="img" aria-label="smile" className="emoji">
+                      😀
+                    </span>
+                    <p>Dit is een veilige route je wordt nauwlijks blootgesteld aan luchtvervuiling.</p>
+                  </div>
+                )}
+                {score < 0 && score > -30 && (
+                  <div>
+                    <span label="thinking" role="img" aria-label="thinking" className="emoji">
+                      🤔
+                    </span>
+                    <p>Met deze route wordt je lichtelijk blootgesteld aan luchtvervuiling maar het kan beter!</p>
+                  </div>
+                )}
+                {score < -30 && (
+                  <div>
+                    <span label="sick" role="img" aria-label="sick" className="emoji">
+                      😷
+                    </span>
+                    <p>Er is teveel luchtvervuiling op deze route. Pas je route aan!</p>
+                  </div>
+                )}
               </div>
-            )}
-            {this.state.score < 0 && this.state.score > -30 && (
-              <div>
-                <span label="thinking"  role="img" aria-label="thinking" className="emoji">🤔</span>
-                <p>
-                  Met deze route wordt je minder blootgesteld aan
-                  luchtvervuiling maar het kan beter!
-                </p>
-              </div>
-            )}
-            {this.state.score < -30 && (
-              <div>
-                <span label="sick"  role="img" aria-label="sick" className="emoji">
-                  😷
-                </span>
-                <p>
-                  Er is teveel luchtvervuiling op deze route. Pas je route aan!
-                </p>
-              </div>
-            )}
-          </div>
+            </AccordionItem>
+          </Accordion>
           <AccordionInfo />
         </Airqualityinfo>
-        <RangePanel>
-          <AirQualityRange />
-          <TrafficRange />
-        </RangePanel>
+
         {this.state.render ? (
           <div className="explainPopup">
             <InfoPanel closeInfoPanel={this.closeInfoPanel}>
-              <h1>Wat is Koolstofdioxide(No2)?</h1>
-              <p>
-                NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon.
-                Het weer en de verkeersdrukte hebben grote invloed op de
-                concentratie. De wettelijke norm is een jaargemiddelde van 40
-                (μg/m3).
-              </p>
+              <div className="direction-pop-up">
+                <h1>N02 bicycle route planner</h1>
+                <h2>Wat is Koolstofdioxide(No2)?</h2>
+                <p>
+                  NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van 40
+                  (μg/m3).
+                </p>
 
-              <h1>Wat is de bedoeling van dit platform?</h1>
-              <p>
-                De bedoeling van dit platform is om erachter te komen of fietser
-                in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid
-                beinvloed. Verder zijn we ook aan het kijken hoe deze kennis
-                omgezet kan worden in gedragsverandeing.
-              </p>
+                <h2>Wat is de bedoeling van dit platform?</h2>
+                <p>
+                  De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
+                  kennis omgezet kan worden in gedragsverandeing.
+                </p>
 
-              <h1>Hoe werkt het?</h1>
-              <p>
-                Op de kaart zie je verschillende stations in Amsterdam die
-                luchtkwaliteit meten. Deze stations zijn van het RIVM en meten
-                de NO2 waardes van dat gebied. Hoe hoger de waardes hoe slechter
-                de luchtkwaliteit is. Op basis de informatie die je op de kaart
-                krijgt over de luchtkwaliteit kan je een route plannen. Maak
-                gebruik van de route planner linksboven of kies een bestemming
-                en vetrekpunt door op de kaart te klikken. Op basis van je rute
-                krijg je een score met een uitleg die aangeeft hoe veilig de
-                route voor je is.
-              </p>
-              <div className="explainApp">
-                <img
-                  src="asset/img/explain-1.png"
-                  alt="stap 1 kies een vetrekpunt"
-                />
-                <img
-                  src="asset/img/explain-2.png"
-                  alt=" stap 2 maak ene route "
-                />
-                <img
-                  src="asset/img/explain-3.png"
-                  alt="stap 3 check je score"
-                />
+                <h2>Hoe werkt het?</h2>
+                <p>
+                  Op de kaart zie je verschillende stations in Amsterdam die luchtkwaliteit meten. Deze stations zijn van het RIVM en meten de NO2 waardes van dat gebied. Hoe hoger de waardes hoe
+                  slechter de luchtkwaliteit is. Op basis de informatie die je op de kaart krijgt over de luchtkwaliteit kan je een route plannen. Maak gebruik van de route planner linksboven of kies
+                  een bestemming en vetrekpunt door op de kaart te klikken. Op basis van je route krijg je een score met een uitleg die aangeeft hoe veilig de route voor je is.
+                </p>
+                <div className="explainApp">
+                  <img src="asset/img/explain-1.png" alt="stap 1 kies een vetrekpunt" />
+                  <img src="asset/img/explain-2.png" alt=" stap 2 maak ene route " />
+                  <img src="asset/img/explain-3.png" alt="stap 3 check je score" />
+                </div>
               </div>
             </InfoPanel>
           </div>
