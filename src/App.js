@@ -10,11 +10,10 @@ import InfoPanel from "./InfoPanel";
 import AirQualityRange from "./dataRange/AirQualityRange";
 import Detailgraph from "./detailview/Detailgraph";
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
-
 import Airqualityinfo from "./dataRange/Airqualityinfo";
+import AccordionInfo from "./dataRange/AccordionInfo";
 import RangePanel from "./dataRange/RangePanel";
-import { Accordion, AccordionItem } from "react-light-accordion";
-import "react-light-accordion/demo/css/index.css";
+import { Accordion, AccordionItem } from "react-sanfona";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
 const mapStyle = "mapbox://styles/ugur22/cjw1xdexp03td1crpzxagiywf";
@@ -142,33 +141,39 @@ export default class App extends React.Component {
           {this.renderStation.bind(this)}
         </DeckGL>
         <Airqualityinfo>
-          <Accordion atomic={true}>
-            <AccordionItem title="Wat is NO2?">
-              <p>
-                NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van 40
-                (μg/m3).
-              </p>
-            </AccordionItem>
-
-            <AccordionItem title="Wat is de bedoeling van dit platform?">
-              <p>
-                De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
-                kennis omgezet kan worden in gedragsverandeing.
-              </p>
-            </AccordionItem>
-
-            <AccordionItem title="Hoe werkt het?">
-              <p>
-                Op de kaart zie je verschillende stations in Amsterdam die luchtkwaliteit meten. Deze stations zijn van het RIVM en meten de NO2 waardes van dat gebied. Hoe hoger de waardes hoe
-                slechter de luchtkwaliteit is. Verder kan je door te hoveren op een station het laatste uurgemiddelde zijn van dat station. Door op het station te klikken kan je een detailoverzicht
-                zien die het uurgemiddelde toont over de gehele maand.
-              </p>
-            </AccordionItem>
-          </Accordion>
+          <div className="accordion">
+            <Accordion>
+              <AccordionItem className="itemUp info" title={"Wat moet ik weten?"} expandedClassName={"itemDown"} titleTag={"h5"}>
+                <Accordion>
+                  <AccordionItem title={"Wat is NO2?"} titleTag={"h5"}>
+                    <p>
+                      NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van
+                      40 (μg/m3).
+                    </p>
+                  </AccordionItem>
+                  <AccordionItem title={"Wat is de bedoeling van dit platform?"} titleTag={"h5"}>
+                    <p>
+                      De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
+                      kennis omgezet kan worden in gedragsverandeing.
+                    </p>
+                  </AccordionItem>
+                  <AccordionItem title={"Hoe werkt het?"} titleTag={"h5"}>
+                    <p>
+                      Op de kaart zie je verschillende stations in Amsterdam die luchtkwaliteit meten. Deze stations zijn van het RIVM en meten de NO2 waardes van dat gebied. Hoe hoger de waardes hoe
+                      slechter de luchtkwaliteit is. Verder kan je door te hoveren op een station het laatste uurgemiddelde zijn van dat station. Door op het station te klikken kan je een
+                      detailoverzicht zien die het uurgemiddelde toont over de gehele maand.
+                    </p>
+                  </AccordionItem>
+                </Accordion>
+              </AccordionItem>
+            </Accordion>
+            <Accordion>
+              <AccordionItem title={"Legenda"} expanded={true} titleTag={"h5"} expandedClassName={"itemDown"} className="itemUp info">
+                <AirQualityRange />
+              </AccordionItem>
+            </Accordion>
+          </div>
         </Airqualityinfo>
-        <RangePanel>
-          <AirQualityRange />
-        </RangePanel>
         {this.state.render ? (
           <div className="explainPopup">
             <InfoPanel closeInfoPanel={this.closeInfoPanel}>

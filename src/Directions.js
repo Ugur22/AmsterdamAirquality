@@ -1,12 +1,11 @@
 import React from "react";
 import mapboxgl from "mapbox-gl";
 import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
-import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css"; // Updating node module will keep css up to date.
+
 import Airqualityinfo from "./dataRange/Airqualityinfo";
 import AccordionInfo from "./dataRange/AccordionInfo";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import InfoPanel from "./InfoPanel";
-import { circles } from "./settings/radiusCircles";
 import MapboxCircle from "mapbox-gl-circle";
 import { getNowHourISO } from "./settings/time";
 import { Accordion, AccordionItem } from "react-sanfona";
@@ -34,7 +33,7 @@ let directions = new MapboxDirections({
 const { lng, lat, zoom } = {
   lng: 4.8972,
   lat: 52.3709,
-  zoom: 13
+  zoom: 12
 };
 
 let score, duration, data;
@@ -94,11 +93,10 @@ export default class Direction extends React.Component {
         console.log(error);
         return [];
       });
-    console.log(collectionMeasurements);
 
     let radiusAirQuality;
-    let coordinatesCirkels = [];
     let locationsStep = [];
+    let durationSteps = [];
     let circlesCenter = [];
     let steps = [];
     let radiusCircle = 1200;
@@ -110,7 +108,7 @@ export default class Direction extends React.Component {
       features: []
     };
     const map = new mapboxgl.Map({
-      container: this.mapContainer, // See https://blog.mapbox.com/mapbox-gl-js-react-764da6cc074a
+      container: this.mapContainer,
       style: "mapbox://styles/ugur22/cjvpc96ky16c91ck6woz0ih5d",
       center: [lng, lat],
       zoom
@@ -143,10 +141,9 @@ export default class Direction extends React.Component {
         });
         radiusAirQuality.addTo(map);
         circlesCenter.push(radiusAirQuality);
-        coordinatesCirkels.push(radiusAirQuality._circle);
       }
 
-      // map.resize();
+      map.resize();
       map.addSource("stations", {
         type: "geojson",
         data: stations
@@ -161,7 +158,7 @@ export default class Direction extends React.Component {
           "text-variable-anchor": ["top", "bottom", "left", "right"],
           "text-radial-offset": 0.5,
           "text-justify": "auto",
-          "text-size": 18
+          "text-size": 14
         },
         paint: {
           "text-color": "#ffffff"
@@ -184,6 +181,7 @@ export default class Direction extends React.Component {
       });
     });
     directions.on("route", direction => {
+      console.log(direction);
       duration = direction.route[0].duration / 60;
       this.setState({
         duration: duration.toFixed(0)
@@ -208,45 +206,65 @@ export default class Direction extends React.Component {
       for (let j = 0; j < steps.length; j++) {
         locationsStep.push(steps[j].maneuver.location);
       }
+
+      for (let x = 0; x < steps.length; x++) {
+        durationSteps.push(steps[x].duration);
+      }
+
+      for (let i = 0; i < locationsStep.length; i++) {
+        for (let j = 0; j < durationSteps.length; j++) {
+          locationsStep[i]["duration"] = parseInt(durationSteps[j].toFixed(2));
+          i++;
+        }
+      }
+
       let checkhitCount = 0;
+      let durationCountFirstColor = 0;
+      let durationCountSecondtColor = 0;
+      let durationCountThirdColor = 0;
       for (let i = 0; i < circlesCenter.length; i++) {
         for (let j = 0; j < locationsStep.length; j++) {
           let checkHit = this.getDistanceFromLatLonInMeters(locationsStep[j][1], locationsStep[j][0], circlesCenter[i]._lastCenterLngLat[1], circlesCenter[i]._lastCenterLngLat[0]);
           if (checkHit <= radiusCircle) {
             checkhitCount++;
             if (circlesCenter[i].options.fillColor === "#fdd082") {
-              console.log("#fdd082");
-              this.setState({
-                score: (score = score - 4)
-              });
+              durationCountFirstColor += locationsStep[j].duration;
             }
             if (circlesCenter[i].options.fillColor === "#24ca4a") {
-              console.log("#24ca4a");
-              this.setState({
-                score: (score = score + 8)
-              });
             }
             if (circlesCenter[i].options.fillColor === "#a50026") {
-              console.log("#a50026");
-              this.setState({
-                score: (score = score - 8)
-              });
+              durationCountSecondtColor += locationsStep[j].duration;
             }
             if (circlesCenter[i].options.fillColor === "#55BD6D") {
-              console.log("#55BD6D");
-              this.setState({
-                score: (score = score + 4)
-              });
             }
             if (circlesCenter[i].options.fillColor === "#e67e22") {
-              console.log("#e67e22");
-              this.setState({
-                score: (score = score - 2)
-              });
+              durationCountThirdColor += locationsStep[j].duration;
             }
           }
         }
       }
+      durationCountFirstColor = durationCountFirstColor / 60;
+      durationCountSecondtColor = durationCountSecondtColor / 60;
+      durationCountThirdColor = durationCountThirdColor;
+      console.log(durationCountThirdColor);
+      for (let i = 0; i < durationCountThirdColor / 10; i++) {
+        this.setState({
+          score: (score = score - 4)
+        });
+      }
+
+      for (let i = 0; i < durationCountSecondtColor.length; i++) {
+        this.setState({
+          score: (score = score - 8)
+        });
+      }
+
+      for (let i = 0; i < durationCountThirdColor.length; i++) {
+        this.setState({
+          score: (score = score - 2)
+        });
+      }
+
       if (checkhitCount <= 0) {
         this.setState({
           score: "De score kan niet berekent worden omdat er in dit gebied geen meetstations zijn",
@@ -254,6 +272,7 @@ export default class Direction extends React.Component {
         });
       }
       locationsStep = [];
+      durationSteps = [];
     });
     map.addControl(directions, "top-left");
   }
@@ -298,7 +317,7 @@ export default class Direction extends React.Component {
         <div id="map" style={style} ref={el => (this.mapContainer = el)} className="map" />
         <Airqualityinfo>
           <Accordion>
-            <AccordionItem className="itemUp" expanded={true} title={"Advies"} expandedClassName={"itemDown"} titleTag={"h4"}>
+            <AccordionItem className="itemUp" expanded={true} title={"Advies"} expandedClassName={"itemDown"} titleTag={"h5"}>
               <div className="score">
                 {duration ? <p>Tijdsduur route: {duration} minuten</p> : null}
                 {score ? <p> Score: {score}</p> : <p>Maak een route om een advies te krijgen</p>}

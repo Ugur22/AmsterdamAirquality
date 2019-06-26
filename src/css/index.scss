@@ -82,7 +82,8 @@ tbody th:hover {
 
 .info-airQuality {
   background: #ffff;
-  margin: 20px;
+  border-radius: 10px;
+  margin: 10px;
   bottom: 20px;
   position: absolute;
 }
@@ -136,7 +137,6 @@ span.bad {
 .rating-traffic {
   display: flex;
   height: 20px;
-  padding: 3px;
 }
 
 .panel p {
@@ -312,4 +312,23 @@ span {
 
 .react-sanfona-item-body-wrapper p {
   font-size: 12px;
+}
+@media only screen and (max-width: 720px) {
+  .mapboxgl-ctrl-top-left {
+    width: 100%;
+  }
+  .explainPopup .info-panel {
+    display:none;
+  }
+
+  .mapboxgl-ctrl-top-left .mapboxgl-ctrl {
+    margin: 0 auto;
+    margin-top: 10px;
+    float: initial;
+    min-width: 95%;
+  }
+  .info-airQuality {
+    margin: 5px;
+    bottom:30px;
+  }
 }

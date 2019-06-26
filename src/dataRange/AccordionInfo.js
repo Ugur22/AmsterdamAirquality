@@ -12,7 +12,7 @@ class AccordionInfo extends React.Component {
     return (
       <div className="accordion">
         <Accordion>
-          <AccordionItem className="itemUp info" title={"Wat moet ik weten?"} expanded={true} expandedClassName={"itemDown"} titleTag={"h4"}>
+          <AccordionItem className="itemUp info" title={"Wat moet ik weten?"} expandedClassName={"itemDown"} titleTag={"h5"}>
             <Accordion>
               <AccordionItem title={"Wat is NO2?"} titleTag={"h5"}>
                 <p>
@@ -29,15 +29,17 @@ class AccordionInfo extends React.Component {
               <AccordionItem title={"Hoe werkt het?"} titleTag={"h5"}>
                 <p>
                   Op de kaart zie je verschillende stations in Amsterdam die luchtkwaliteit meten. Deze stations zijn van het RIVM en meten de NO2 waardes van dat gebied. Hoe hoger de waardes hoe
-                  slechter de luchtkwaliteit is. Op basis de informatie die je op de kaart krijgt over de luchtkwaliteit kan je een route plannen. Maak gebruik van de route planner linksboven of kies
+                  slechter de luchtkwaliteit is. Op basis van de informatie die je op de kaart krijgt over de luchtkwaliteit kan je een route plannen. Maak gebruik van de route planner linksboven of kies
                   een bestemming en vetrekpunt door op de kaart te klikken.
                 </p>
               </AccordionItem>
-              <AccordionItem title={"Legenda"} expanded={true} titleTag={"h5"}>
-                <AirQualityRange />
-                <TrafficRange />
-              </AccordionItem>
             </Accordion>
+          </AccordionItem>
+        </Accordion>
+        <Accordion>
+          <AccordionItem title={"Legenda"} expanded={true} titleTag={"h5"} expandedClassName={"itemDown"} className="itemUp info">
+            <AirQualityRange />
+            <TrafficRange />
           </AccordionItem>
         </Accordion>
       </div>

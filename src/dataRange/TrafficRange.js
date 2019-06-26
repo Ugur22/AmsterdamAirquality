@@ -20,7 +20,7 @@ class TrafficRange extends React.Component {
               })}
             </linearGradient>
           </defs>
-          <rect x="0" y="0" width="100%" height="15" fill="url(#legendTraffic)" />
+          <rect x="0" y="0" width="100%" height="10" fill="url(#legendTraffic)" />
         </svg>{" "}
         <div className="rating-traffic">
           <span className="good">rustig</span>
