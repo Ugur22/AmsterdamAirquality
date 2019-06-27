@@ -6,18 +6,7 @@ import InfoPanel from "../InfoPanel";
 import DetailViewTable from "./DetailViewTable";
 
 let data, render, number_station;
-let station_locations = [
-  "Amsterdam-Ookmeer",
-  "Amsterdam -Kantershof",
-  "Amsterdam-Jan van Galenstraat",
-  "Amsterdam-Oude Schans",
-  "Amsterdam-Stadhouderskade",
-  "Amsterdam-Vondelpark",
-  "Amsterdam-Van Diemenstraat",
-  "Amsterdam-Einsteinweg",
-  "Amsterdam-Nieuwendammerdijk",
-  "Amsterdam-Haarlemmerweg"
-];
+
 class TableView extends React.Component {
   state = {};
 
@@ -70,15 +59,7 @@ class TableView extends React.Component {
     this.renderStation = this.renderStation.bind(this);
     data = this.state.data;
 
-    if (this.state.data != null) {
-      for (let i = 0; i < data.length; i++) {
-        for (let j = 0; j < station_locations.length; j++) {
-          data[i]["location"] = station_locations[j];
-          i++;
-        }
-      }
-    }
-
+    console.log(data);
     return (
       <div>
         {this.state.render ? (
@@ -99,7 +80,7 @@ class TableView extends React.Component {
             <tbody>
               {this.state.data.map(item => (
                 <tr key={item.station_number} onClick={e => this.renderStation(e, item.station_number)}>
-                  <td> {item.location} </td>
+                  <td> {item.name} </td>
                   <td>{item.station_number}</td>
                   <td> {item.value} µg/m3</td>
                   <td> {item.formula}</td>

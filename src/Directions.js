@@ -222,46 +222,65 @@ export default class Direction extends React.Component {
       let durationCountFirstColor = 0;
       let durationCountSecondtColor = 0;
       let durationCountThirdColor = 0;
+      let durationCountFourthColor = 0;
+      let durationCountFivthColor = 0;
       for (let i = 0; i < circlesCenter.length; i++) {
         for (let j = 0; j < locationsStep.length; j++) {
           let checkHit = this.getDistanceFromLatLonInMeters(locationsStep[j][1], locationsStep[j][0], circlesCenter[i]._lastCenterLngLat[1], circlesCenter[i]._lastCenterLngLat[0]);
           if (checkHit <= radiusCircle) {
             checkhitCount++;
-            if (circlesCenter[i].options.fillColor === "#fdd082") {
+
+            if (circlesCenter[i].options.fillColor === "#55BD6D") {
               durationCountFirstColor += locationsStep[j].duration;
             }
             if (circlesCenter[i].options.fillColor === "#24ca4a") {
-            }
-            if (circlesCenter[i].options.fillColor === "#a50026") {
               durationCountSecondtColor += locationsStep[j].duration;
             }
-            if (circlesCenter[i].options.fillColor === "#55BD6D") {
-            }
+
             if (circlesCenter[i].options.fillColor === "#e67e22") {
               durationCountThirdColor += locationsStep[j].duration;
+            }
+
+            if (circlesCenter[i].options.fillColor === "#fdd082") {
+              durationCountFourthColor += locationsStep[j].duration;
+            }
+
+            if (circlesCenter[i].options.fillColor === "#a50026") {
+              durationCountFivthColor += locationsStep[j].duration;
             }
           }
         }
       }
-      durationCountFirstColor = durationCountFirstColor / 60;
-      durationCountSecondtColor = durationCountSecondtColor / 60;
-      durationCountThirdColor = durationCountThirdColor;
-      console.log(durationCountThirdColor);
+
+      console.log(durationCountSecondtColor / 60);
+
       for (let i = 0; i < durationCountThirdColor / 10; i++) {
         this.setState({
           score: (score = score - 4)
         });
       }
 
-      for (let i = 0; i < durationCountSecondtColor.length; i++) {
+      for (let i = 0; i < durationCountSecondtColor / 10; i++) {
         this.setState({
-          score: (score = score - 8)
+          score: (score = score + 4)
         });
       }
 
-      for (let i = 0; i < durationCountThirdColor.length; i++) {
+      for (let i = 0; i < durationCountFirstColor / 10; i++) {
         this.setState({
-          score: (score = score - 2)
+          score: (score = score + 6)
+        });
+      }
+
+      for (let i = 0; i < durationCountFourthColor / 10; i++) {
+        this.setState({
+          score: (score = score - 3)
+        });
+      }
+
+      for (let i = 0; i < durationCountFivthColor / 10; i++) {
+        this.setState({
+          score: (score = score - 6)
         });
       }
 
@@ -329,7 +348,7 @@ export default class Direction extends React.Component {
                     <p>Dit is een veilige route je wordt nauwlijks blootgesteld aan luchtvervuiling.</p>
                   </div>
                 )}
-                {score < 0 && score > -30 && (
+                {score < 0 && score > -300 && (
                   <div>
                     <span label="thinking" role="img" aria-label="thinking" className="emoji">
                       🤔
@@ -337,7 +356,7 @@ export default class Direction extends React.Component {
                     <p>Met deze route wordt je lichtelijk blootgesteld aan luchtvervuiling maar het kan beter!</p>
                   </div>
                 )}
-                {score < -30 && (
+                {score < -300 && (
                   <div>
                     <span label="sick" role="img" aria-label="sick" className="emoji">
                       😷
