@@ -25,7 +25,7 @@ class AirQualityRange extends React.Component {
             </linearGradient>
           </defs>
           <rect x="0" y="0" width="100%" height="10" fill="url(#legend)" />
-        </svg>{" "}
+        </svg>
         <div className="rating">
           <span className="good">goed</span>
           <span className="middle">matig</span>

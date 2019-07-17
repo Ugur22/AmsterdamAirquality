@@ -20,6 +20,9 @@ class AccordionInfo extends React.Component {
                   (μg/m3).
                 </p>
               </AccordionItem>
+              <AccordionItem title={"Wat is het effect van NO2 op onze gezondheid?"} titleTag={"h5"}>
+                <p>Longirritatie, verminderde weerstand, infecties van de luchtwegen. Chronische blootstelling aan huidige NO2 niveaus leidt tot gemiddelde levensduurverkorting van 4 maanden.</p>
+              </AccordionItem>
               <AccordionItem title={"Wat is de bedoeling van dit platform?"} titleTag={"h5"}>
                 <p>
                   De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
@@ -29,8 +32,8 @@ class AccordionInfo extends React.Component {
               <AccordionItem title={"Hoe werkt het?"} titleTag={"h5"}>
                 <p>
                   Op de kaart zie je verschillende stations in Amsterdam die luchtkwaliteit meten. Deze stations zijn van het RIVM en meten de NO2 waardes van dat gebied. Hoe hoger de waardes hoe
-                  slechter de luchtkwaliteit is. Op basis van de informatie die je op de kaart krijgt over de luchtkwaliteit kan je een route plannen. Maak gebruik van de route planner linksboven of kies
-                  een bestemming en vetrekpunt door op de kaart te klikken.
+                  slechter de luchtkwaliteit is. Op basis van de informatie die je op de kaart krijgt over de luchtkwaliteit kan je een route plannen. Maak gebruik van de route planner linksboven of
+                  kies een bestemming en vetrekpunt door op de kaart te klikken.
                 </p>
               </AccordionItem>
             </Accordion>

@@ -35,6 +35,7 @@ class TableView extends React.Component {
   };
 
   componentDidMount() {
+    document.title = "tableview airquality";
     let start = getNowHourISO();
 
     const urls = [

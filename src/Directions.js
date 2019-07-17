@@ -44,7 +44,7 @@ export default class Direction extends React.Component {
 
     this.state = {
       data: [],
-      render: false,
+      render: true,
       score: 0,
       duration
     };
@@ -70,6 +70,7 @@ export default class Direction extends React.Component {
 
   componentDidMount() {
     // score = this.state.score;
+    document.title = "N02 bicycle route planner";
     let collectionMeasurements = [];
 
     let start = getNowHourISO();
@@ -117,18 +118,6 @@ export default class Direction extends React.Component {
     map.on("load", () => {
       data = collectionMeasurements[0];
       for (let i = 0; i < data.length; i++) {
-        stations.features.push({
-          type: "Feature",
-          properties: {
-            value: data[i].value + " μg/m3"
-          },
-          geometry: {
-            type: "Point",
-            coordinates: [data[i].coordinates[1], data[i].coordinates[0]]
-          }
-        });
-      }
-      for (let i = 0; i < data.length; i++) {
         radiusAirQuality = new MapboxCircle({ lat: data[i].coordinates[0], lng: data[i].coordinates[1] }, radiusCircle, {
           editable: false,
           minRadius: 1500,
@@ -141,6 +130,18 @@ export default class Direction extends React.Component {
         });
         radiusAirQuality.addTo(map);
         circlesCenter.push(radiusAirQuality);
+      }
+      for (let i = 0; i < data.length; i++) {
+        stations.features.push({
+          type: "Feature",
+          properties: {
+            value: data[i].value + " μg/m3"
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [data[i].coordinates[1], data[i].coordinates[0]]
+          }
+        });
       }
 
       map.resize();
@@ -158,7 +159,7 @@ export default class Direction extends React.Component {
           "text-variable-anchor": ["top", "bottom", "left", "right"],
           "text-radial-offset": 0.5,
           "text-justify": "auto",
-          "text-size": 14
+          "text-size": 17
         },
         paint: {
           "text-color": "#ffffff"
@@ -180,6 +181,7 @@ export default class Direction extends React.Component {
         score: 0
       });
     });
+
     directions.on("route", direction => {
       console.log(direction);
       duration = direction.route[0].duration / 60;
@@ -381,9 +383,12 @@ export default class Direction extends React.Component {
                   (μg/m3).
                 </p>
 
+                <h2>Wat is het effect van NO2 op onze gezondheid?</h2>
+                <p>Longirritatie, verminderde weerstand, infecties van de luchtwegen. Chronische blootstelling aan huidige NO2 niveaus leidt tot gemiddelde levensduurverkorting van 4 maanden.</p>
+
                 <h2>Wat is de bedoeling van dit platform?</h2>
                 <p>
-                  De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
+                  De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster worden over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
                   kennis omgezet kan worden in gedragsverandeing.
                 </p>
 

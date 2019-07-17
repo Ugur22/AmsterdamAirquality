@@ -69,8 +69,8 @@ class DetailViewTable extends React.Component {
             <ResponsiveContainer width="100%" height={460}>
               <BarChart  width={960} height={500} data={data} margin={{top: 5,right: 30, left: 20,bottom: 5  }}>
                 <CartesianGrid horizontal vertical={false} strokeDasharray="3 3" />
-                <XAxis tickMargin={5} dataKey="timestamp_measured" tickFormatter={this.xAxisTickFormatter} />
-                <YAxis type="number" domain={[0, 150]}>
+                <XAxis interval={35} tickMargin={5} dataKey="timestamp_measured" tickFormatter={this.xAxisTickFormatter} />
+                <YAxis  type="number" domain={[0, 150]}>
                   <Label angle={-90} value="stikstofdioxide (NO2)" position="insideLeft" style={{ textAnchor: "middle" }} />
                 </YAxis>
                 <Tooltip content={this.CustomTooltip} animationDuration={0} />

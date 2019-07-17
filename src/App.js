@@ -11,8 +11,6 @@ import AirQualityRange from "./dataRange/AirQualityRange";
 import Detailgraph from "./detailview/Detailgraph";
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 import Airqualityinfo from "./dataRange/Airqualityinfo";
-import AccordionInfo from "./dataRange/AccordionInfo";
-import RangePanel from "./dataRange/RangePanel";
 import { Accordion, AccordionItem } from "react-sanfona";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
@@ -59,9 +57,14 @@ export default class App extends React.Component {
             left: pointerX,
             top: pointerY
           }}>
-          <span>{hoveredObject.formula}</span>
-          <br />
-          Laatste uurgemiddelde: {hoveredObject.value} μg/m3
+          <ul className="hoveredObjectData">
+            <li>
+              {" "}
+              <span>{hoveredObject.name}</span>
+            </li>
+            <li>gemeten stof: {hoveredObject.formula}</li>
+            <li> Laatste uurgemiddelde: {hoveredObject.value} μg/m3</li>
+          </ul>
         </div>
       )
     );
@@ -87,6 +90,7 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
+    document.title = "Airquality insight platform";
     let start = getNowHourISO();
     const urls = [
       `https://data.waag.org/api/getOfficialMeasurement?formula=NO2&start=${start}&end=${start}&
@@ -105,9 +109,8 @@ export default class App extends React.Component {
 
   render() {
     data = this.state.data;
-    const cellSize = 50;
+    const cellSize = 100;
     const elevation = scaleLinear([0, 10], [0, 1]);
-
     const layers = [
       new GridCellLayer({
         id: "grid-cell-layer",
@@ -118,7 +121,7 @@ export default class App extends React.Component {
         getPosition: d => d.coordinates,
         cellSize: cellSize,
         elevationScale: 50,
-        getColor: d => getColorArray(color(d.value, [0, 60])),
+        getColor: d => getColorArray(color(d.value, [0, 55])),
         getElevation: d => elevation(d.value),
         onHover: info =>
           this.setState({
@@ -151,9 +154,13 @@ export default class App extends React.Component {
                       40 (μg/m3).
                     </p>
                   </AccordionItem>
+
+                  <AccordionItem title={"Wat is het effect van NO2 op onze gezondheid?"} titleTag={"h5"}>
+                    <p>Longirritatie, verminderde weerstand, infecties van de luchtwegen. Chronische blootstelling aan huidige NO2 niveaus leidt tot gemiddelde levensduurverkorting van 4 maanden.</p>
+                  </AccordionItem>
                   <AccordionItem title={"Wat is de bedoeling van dit platform?"} titleTag={"h5"}>
                     <p>
-                      De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
+                      De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster worden over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
                       kennis omgezet kan worden in gedragsverandeing.
                     </p>
                   </AccordionItem>
@@ -177,19 +184,26 @@ export default class App extends React.Component {
         {this.state.render ? (
           <div className="explainPopup">
             <InfoPanel closeInfoPanel={this.closeInfoPanel}>
-              <h1>Wat is Koolstofdioxide(No2)?</h1>
+              <header>
+                <h1>Airquality insight platform</h1>
+              </header>
+
+              <h2>Wat is Koolstofdioxide(No2)?</h2>
               <p>
                 NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van 40
                 (μg/m3).
               </p>
 
-              <h1>Wat is de bedoeling van dit platform?</h1>
+              <h2>Wat is het effect van NO2 op onze gezondheid?</h2>
+              <p>Longirritatie, verminderde weerstand, infecties van de luchtwegen. Chronische blootstelling aan huidige NO2 niveaus leidt tot gemiddelde levensduurverkorting van 4 maanden.</p>
+
+              <h2>Wat is de bedoeling van dit platform?</h2>
               <p>
                 De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
                 kennis omgezet kan worden in gedragsverandeing.
               </p>
 
-              <h1>Hoe werkt het?</h1>
+              <h2>Hoe werkt het?</h2>
               <p>
                 Op de kaart zie je verschillende stations in Amsterdam die luchtkwaliteit meten. Deze stations zijn van het RIVM en meten de NO2 waardes van dat gebied. Hoe hoger de waardes hoe
                 slechter de luchtkwaliteit is. Verder kan je door te hoveren op een station het laatste uurgemiddelde zijn van dat station. Door op het station te klikken kan je een detailoverzicht
