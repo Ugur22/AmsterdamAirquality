@@ -62,8 +62,8 @@ export default class App extends React.Component {
               {" "}
               <span>{hoveredObject.name}</span>
             </li>
-            <li>gemeten stof: {hoveredObject.formula}</li>
-            <li> Laatste uurgemiddelde: {hoveredObject.value} μg/m3</li>
+            <li>measured compound: {hoveredObject.formula}</li>
+            <li> last hourly average: {hoveredObject.value} μg/m3</li>
           </ul>
         </div>
       )
@@ -146,36 +146,35 @@ export default class App extends React.Component {
         <Airqualityinfo>
           <div className="accordion">
             <Accordion>
-              <AccordionItem className="itemUp info" title={"Wat moet ik weten?"} expandedClassName={"itemDown"} titleTag={"h5"}>
+              <AccordionItem className="itemUp info" title={"Good to know"} expandedClassName={"itemDown"} titleTag={"h5"}>
                 <Accordion>
-                  <AccordionItem title={"Wat is NO2?"} titleTag={"h5"}>
+                  <AccordionItem title={"What is NO2?"} titleTag={"h5"}>
                     <p>
-                      NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van
-                      40 (μg/m3).
+                      NO2 is caused by a reaction between nitrogen dioxide and ozone. Weather and traffic have a major impact on concentration. The legal standard is an annual average of 40 (μg / m3).
                     </p>
                   </AccordionItem>
 
-                  <AccordionItem title={"Wat is het effect van NO2 op onze gezondheid?"} titleTag={"h5"}>
-                    <p>Longirritatie, verminderde weerstand, infecties van de luchtwegen. Chronische blootstelling aan huidige NO2 niveaus leidt tot gemiddelde levensduurverkorting van 4 maanden.</p>
+                  <AccordionItem title={"What is the effect of NO2 on our health?"} titleTag={"h5"}>
+                    <p>Lung irritation, reduced resistance, respiratory infections. Chronic exposure to current NO2 levels leads to an average lifespan reduction of 4 months.</p>
                   </AccordionItem>
-                  <AccordionItem title={"Wat is de bedoeling van dit platform?"} titleTag={"h5"}>
+                  <AccordionItem title={"What is the purpose of this platform?"} titleTag={"h5"}>
                     <p>
-                      De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster worden over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
-                      kennis omgezet kan worden in gedragsverandeing.
+                      The purpose of this platform is to find out whether cyclists in Amsterdam become more aware of how air quality influences your health. We are also researching
+                                             how this knowledge can be converted into behavioral change.
                     </p>
                   </AccordionItem>
-                  <AccordionItem title={"Hoe werkt het?"} titleTag={"h5"}>
+                  <AccordionItem title={"How does it work?"} titleTag={"h5"}>
                     <p>
-                      Op de kaart zie je verschillende stations in Amsterdam die luchtkwaliteit meten. Deze stations zijn van het RIVM en meten de NO2 waardes van dat gebied. Hoe hoger de waardes hoe
-                      slechter de luchtkwaliteit is. Verder kan je door te hoveren op een station het laatste uurgemiddelde zijn van dat station. Door op het station te klikken kan je een
-                      detailoverzicht zien die het uurgemiddelde toont over de gehele maand.
+                      On the map you can see various stations in Amsterdam that measure air quality. These stations are from RIVM and measure the NO2 values of that area. The higher the values the how
+                      the air quality is worse. Furthermore, by hovering at a station you can be the last hourly average of that station. By clicking on the station you can create a view a detailed
+                      overview showing the hourly average for the entire month.
                     </p>
                   </AccordionItem>
                 </Accordion>
               </AccordionItem>
             </Accordion>
             <Accordion>
-              <AccordionItem title={"Legenda"} expanded={true} titleTag={"h5"} expandedClassName={"itemDown"} className="itemUp info">
+              <AccordionItem title={"Legend"} expanded={true} titleTag={"h5"} expandedClassName={"itemDown"} className="itemUp info">
                 <AirQualityRange />
               </AccordionItem>
             </Accordion>
@@ -188,26 +187,23 @@ export default class App extends React.Component {
                 <h1>Airquality insight platform</h1>
               </header>
 
-              <h2>Wat is Koolstofdioxide(No2)?</h2>
+              <h2>What is nitrogen dioxide (No2)?</h2>
+              <p>NO2 is caused by a reaction between nitrogen dioxide and ozone. Weather and traffic have a major impact on concentration. The legal standard is an annual average of 40 (μg / m3).</p>
+
+              <h2>What is the effect of NO2 on our health?</h2>
+              <p>Lung irritation, reduced resistance, respiratory infections. Chronic exposure to current NO2 levels leads to an average lifespan reduction of 4 months.</p>
+
+              <h2>What is the purpose of this platform?</h2>
               <p>
-                NO2 ontstaat uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van 40
-                (μg/m3).
+                The purpose of this platform is to ind out whether cyclists in Amsterdam become more aware of how air quality influences your health. We are also researching how this knowledge can be
+                converted into behavioral change.                       
               </p>
 
-              <h2>Wat is het effect van NO2 op onze gezondheid?</h2>
-              <p>Longirritatie, verminderde weerstand, infecties van de luchtwegen. Chronische blootstelling aan huidige NO2 niveaus leidt tot gemiddelde levensduurverkorting van 4 maanden.</p>
-
-              <h2>Wat is de bedoeling van dit platform?</h2>
+              <h2>How does it work?</h2>
               <p>
-                De bedoeling van dit platform is om erachter te komen of fietser in Amsterdam bewuster over hoe luchtkwaliteit je gezondheid beinvloed. Verder zijn we ook aan het kijken hoe deze
-                kennis omgezet kan worden in gedragsverandeing.
-              </p>
-
-              <h2>Hoe werkt het?</h2>
-              <p>
-                Op de kaart zie je verschillende stations in Amsterdam die luchtkwaliteit meten. Deze stations zijn van het RIVM en meten de NO2 waardes van dat gebied. Hoe hoger de waardes hoe
-                slechter de luchtkwaliteit is. Verder kan je door te hoveren op een station het laatste uurgemiddelde zijn van dat station. Door op het station te klikken kan je een detailoverzicht
-                zien die het uurgemiddelde toont over de gehele maand.
+                On the map you can see various stations in Amsterdam that measure air quality. These stations are from RIVM and measure the NO2 values of that area. The higher the values the how the
+                air quality is worse. Furthermore, by hovering at a station you can be the last hourly average of that station. By clicking on the station you can create a view a detailed overview
+                showing the hourly average for the entire month.
               </p>
             </InfoPanel>
           </div>

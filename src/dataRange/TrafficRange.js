@@ -11,7 +11,7 @@ class TrafficRange extends React.Component {
   render() {
     return (
       <div className="trafficGradient">
-        <p>Verkeer</p>
+        <p>Traffic</p>
         <svg width="100%" height="15">
           <defs>
             <linearGradient id="legendTraffic" x1="0" y1="0" x2="100%" y2="15" gradientUnits="userSpaceOnUse">
@@ -23,9 +23,9 @@ class TrafficRange extends React.Component {
           <rect x="0" y="0" width="100%" height="10" fill="url(#legendTraffic)" />
         </svg>{" "}
         <div className="rating-traffic">
-          <span className="good">rustig</span>
-          <span className="middle">normaal</span>
-          <span className="bad">druk</span>
+          <span className="good">quiet</span>
+          <span className="middle">Normal</span>
+          <span className="very-bad">busy</span>
         </div>
       </div>
     );

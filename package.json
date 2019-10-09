@@ -35,6 +35,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "deploy-production": "react-scripts build && scp -r AmsterdamAirquality/build/* ugur@206.189.111.40:/var/www/airquality/build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

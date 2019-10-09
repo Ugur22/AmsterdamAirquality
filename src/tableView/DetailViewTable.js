@@ -67,16 +67,15 @@ class DetailViewTable extends React.Component {
           <div className="table-panel-description">
             <h1 className="panel-header">Station: {stationInfo.data.location}</h1>
             <ResponsiveContainer width="100%" height={460}>
-              <BarChart  width={960} height={500} data={data} margin={{top: 5,right: 30, left: 20,bottom: 5  }}>
+              <BarChart width={960} height={500} data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid horizontal vertical={false} strokeDasharray="3 3" />
-                <XAxis interval={35} tickMargin={5} dataKey="timestamp_measured" tickFormatter={this.xAxisTickFormatter} />
-                <YAxis  type="number" domain={[0, 150]}>
-                  <Label angle={-90} value="stikstofdioxide (NO2)" position="insideLeft" style={{ textAnchor: "middle" }} />
+                <XAxis tickMargin={5} dataKey="timestamp_measured" tickFormatter={this.xAxisTickFormatter} />
+                <YAxis type="number" domain={[0, 200]}>
+                  <Label angle={-90} value="nitrogen dioxide (NO2)" position="insideLeft" style={{ textAnchor: "middle" }} />
                 </YAxis>
                 <Tooltip content={this.CustomTooltip} animationDuration={0} />
                 <Bar dataKey="value" name="N02" fill="#00d1b2" />
-                <Brush dataKey="timestamp_measured" tickFormatter={this.xAxisTickFormatter} travellerWidth={4} 
-                startIndex={Math.round(data.length * 0.75)} height={40} width={800} stroke="#34b5bb">
+                <Brush dataKey="timestamp_measured" tickFormatter={this.xAxisTickFormatter} travellerWidth={4} startIndex={Math.round(data.length * 0.75)} height={40} width={800} stroke="#34b5bb">
                   <BarChart>
                     <CartesianGrid />
                     <YAxis hide domain={["auto", "auto"]} />
@@ -86,8 +85,7 @@ class DetailViewTable extends React.Component {
               </BarChart>
             </ResponsiveContainer>
             <p className="explain-N02">
-              De hoogste concentraties stikstofdioxide (NO2) komen voor tijdens de ochtend- en avondspits. Deze stof komt vrij door het (weg)verkeer, energieproductie en industrie. Daarnaast ontstaat
-              NO2 uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van 40 (μg/m3)
+             {stationInfo.data.description.EN}
             </p>
           </div>
         ) : (

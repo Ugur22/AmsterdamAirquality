@@ -40,7 +40,7 @@ class TableView extends React.Component {
 
     const urls = [
       `https://data.waag.org/api/getOfficialMeasurement?formula=NO2&start=${start}&end=${start}&
-      station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&&station_id=NL49021&&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016`
+      station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&station_id=NL49021&&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016`
     ];
 
     Promise.all(urls.map(url => fetch(url).then(resp => resp.json()))).then(([results]) => {
@@ -72,10 +72,10 @@ class TableView extends React.Component {
           <Table className="table">
             <thead>
               <tr>
-                <th>station locatie</th>
+                <th>station location</th>
                 <th>station ID</th>
-                <th>laatste uurgemiddelde</th>
-                <th>stof</th>
+                <th>last hourly average</th>
+                <th>compound</th>
               </tr>
             </thead>
             <tbody>

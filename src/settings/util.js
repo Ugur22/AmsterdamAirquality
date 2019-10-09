@@ -7,7 +7,7 @@ import { colorScale } from "./colors.js";
 
 export const color = (value, range) => {
   const scale = scaleLinear()
-    .domain([0, range[1], range[1], range[1]])
+    .domain([0,100,150,200])
     .interpolate(interpolateCubehelix.gamma(0.5))
     .range(colorScale[0]);
 

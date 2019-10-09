@@ -108,15 +108,31 @@ margin-left: -30px;
   width: 33%;
 }
 
-span.middle {
-  text-align: center;
+span.insufficient {
+  padding-right: 20px;
+
+  padding-left: 20px;
 }
 span.good {
   text-align: left;
 }
 
-span.bad {
+span.very-bad {
   text-align: right;
+}
+
+span.bad {
+  padding-left: 10px;
+}
+
+span.middle {
+  text-align: center;
+}
+
+span.moderate {
+  padding-right: 20px;
+
+  padding-left: 20px;
 }
 
 .rating-info,
@@ -269,6 +285,13 @@ span {
 span.emoji {
   font-size: xx-large;
 }
+
+// .mapboxgl-ctrl-top-left {
+//   top: 0;
+//   right: 0;
+//   margin: 10px 10px 10px 10px;
+// }
+
 @media only screen and (max-width: 720px) {
   .mapboxgl-ctrl-top-left {
     width: 100%;
