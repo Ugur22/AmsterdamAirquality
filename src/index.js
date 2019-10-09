@@ -1,8 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "mapbox-gl/dist/mapbox-gl.css";
-// import App from "./App";
-// import TableView from "./tableView/TableView"
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css"; // Updating node module will keep css up to date.
 import "./css/index.scss";
 import Directions from "./Directions";

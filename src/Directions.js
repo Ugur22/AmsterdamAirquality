@@ -75,6 +75,8 @@ export default class Direction extends React.Component {
 
     let start = getNowHourISO();
 
+
+    // data ophalen van luchtmeetnet API RIVM
     axios
       .get(
         `https://data.waag.org/api/getOfficialMeasurement?formula=NO2&start=${start}&end=${start}&
@@ -128,7 +130,7 @@ export default class Direction extends React.Component {
       
       data = collectionMeasurements[0];
       for (let i = 0; i < data.length; i++) {
-        let colorsArray = getColorArray(color(data[i].value , [0, 55]));
+        let colorsArray = getColorArray(color(data[i].value, [0, 55]));
         let colorToHex = rgbToHex(colorsArray[0], colorsArray[1], colorsArray[2]);
 
         // Draw the circles
