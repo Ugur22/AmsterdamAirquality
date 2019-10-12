@@ -15,7 +15,7 @@ export const getNowHourISO = () => {
   return now.getUTCFullYear()
     + '-' + pad(now.getUTCMonth() + 1)
     + '-' + pad(now.getUTCDate())
-    + 'T' + pad(now.getUTCHours() )
+    + 'T' + pad(now.getUTCHours() - 11)
     + ':00:00.000Z'
 }
 

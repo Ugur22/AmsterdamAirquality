@@ -80,7 +80,7 @@ export default class Direction extends React.Component {
     axios
       .get(
         `https://data.waag.org/api/getOfficialMeasurement?formula=NO2&start=${start}&end=${start}&
-        station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&&station_id=NL49021&&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016`
+        station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&&station_id=NL49021&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016`
       )
       .then(response => {
         if (response.status === 200 && response != null) {
@@ -129,6 +129,8 @@ export default class Direction extends React.Component {
 
       
       data = collectionMeasurements[0];
+
+      console.log(data);
       for (let i = 0; i < data.length; i++) {
         let colorsArray = getColorArray(color(data[i].value, [0, 55]));
         let colorToHex = rgbToHex(colorsArray[0], colorsArray[1], colorsArray[2]);
