@@ -1,12 +1,23 @@
 ## Bicycle Routeplanner
 
-The purpose of this platform is to find out whether cyclists in Amsterdam become more aware of how air quality influences your health. We are also researching how this knowledge can be translated into behavioral change.  
+The purpose of this platform is to find out whether cyclists in Amsterdam become more aware of how air quality influences your health and we are researching if this knowledge can translate into behavioral change.  
 
 ![Example Image of the webapp](https://i.imgur.com/uOqjXuu.png)
 
-## Available Scripts
+This application was build using the following tools:
+- Mapbox-GL
+- Mapbox-directions
+- Mapbox-gl-circle
+- Luchtmeetnet OpenAPI RIVM
+- React
+- D3
 
-In the project directory, you can run:
+
+## Available commands within the project
+
+### npm install
+
+This installs all the necessary npm packages for the application to run. 
 
 ### `npm start`
 
