@@ -5,6 +5,7 @@ import { interpolateCubehelix } from "d3-interpolate";
 
 import { colorScale } from "./colors.js";
 
+// colorscale used for mapboc circles and legend
 export const color = (value, range) => {
   const scale = scaleLinear()
     .domain([0,50,150,200])
