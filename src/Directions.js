@@ -13,6 +13,7 @@ import axios from "axios";
 
 mapboxgl.accessToken = "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
 
+// set up parameters for the mapbox-directions API
 let directions = new MapboxDirections({
   accessToken: mapboxgl.accessToken,
   unit: "metric",
@@ -22,8 +23,6 @@ let directions = new MapboxDirections({
   flyTo: false,
   zoom: 13,
   interactive: true,
-  // placeholderOrigin: "Kies een vetrekpunt of klik op de kaart",
-  // placeholderDestination: "Kies een bestemming of klik op de kaart",
   controls: {
     instructions: false,
     profileSwitcher: false
@@ -58,7 +57,7 @@ export default class Direction extends React.Component {
     });
   }
 
-  // function to calculate the distance between two coordinates
+  // function to calculate the distance between two GPS coordinates
   getDistanceFromLatLonInMeters(latitude1, longitude1, latitude2, longitude2) {
     var p = 0.017453292519943295;
     var c = Math.cos;
@@ -75,8 +74,7 @@ export default class Direction extends React.Component {
 
     let start = getNowHourISO();
 
-
-    // data ophalen van luchtmeetnet API RIVM
+    // Retrieve data from the Waag air quality API (https://data.waag.org/api/getOfficialMeasurement)
     axios
       .get(
         `https://data.waag.org/api/getOfficialMeasurement?formula=NO2&start=${start}&end=${start}&
@@ -111,6 +109,7 @@ export default class Direction extends React.Component {
       features: []
     };
 
+    // set up for the mapstyle used
     const map = new mapboxgl.Map({
       container: this.mapContainer,
       style: "mapbox://styles/ugur22/cjvpc96ky16c91ck6woz0ih5d",
@@ -118,7 +117,9 @@ export default class Direction extends React.Component {
       zoom
     });
 
+    // triggers whenever mapbox loads
     map.on("load", () => {
+      // functions to translate rgb values to hex values which can be then used for the Mapboxcircles
       function componentToHex(c) {
         var hex = c.toString(16);
         return hex.length === 1 ? "0" + hex : hex;
@@ -127,10 +128,8 @@ export default class Direction extends React.Component {
         return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
       }
 
-      
       data = collectionMeasurements[0];
 
-      console.log(data);
       for (let i = 0; i < data.length; i++) {
         let colorsArray = getColorArray(color(data[i].value, [0, 55]));
         let colorToHex = rgbToHex(colorsArray[0], colorsArray[1], colorsArray[2]);
@@ -146,14 +145,14 @@ export default class Direction extends React.Component {
           strokeColor: colorToHex,
           fillColor: colorToHex
         });
-        // add  the circles to the map
+        // add the circles to the map
         radiusAirQuality.addTo(map);
         circlesCenter.push({
           radiusAirQuality,
           value: data[i].value
         });
 
-        // create Geojson object to add to map 
+        // create Geojson object to add to the map
         stations.features.push({
           type: "Feature",
           properties: {
@@ -166,14 +165,16 @@ export default class Direction extends React.Component {
         });
       }
 
+      // lets mapbox use fullscreen
       map.resize();
 
-         // add airquality measuring value to center of cirkel on the map
+      // add airquality measuring value to center of cirkel on the map
       map.addSource("stations", {
         type: "geojson",
         data: stations
       });
-     
+
+      // creates mapbox layer that displays the air quality labels in each circle
       map.addLayer({
         id: "poi-labels",
         type: "symbol",
@@ -208,8 +209,7 @@ export default class Direction extends React.Component {
       });
     });
 
-
-    
+    // Triggers whenever a route has been made by a user
     directions.on("route", direction => {
       duration = direction.route[0].duration / 60;
       this.setState({
@@ -242,11 +242,10 @@ export default class Direction extends React.Component {
         locationsStep.push(steps[j].maneuver.location);
       }
 
-        // push the duruation of each part of the route to an array
+      // push the duruation of each part of the route to an array
       for (let x = 0; x < steps.length; x++) {
         durationSteps.push(steps[x].duration);
       }
-
 
       for (let i = 0; i < locationsStep.length; i++) {
         for (let j = 0; j < durationSteps.length; j++) {
