@@ -5,7 +5,7 @@ The purpose of this platform is to find out whether cyclists in Amsterdam become
 ![Example Image of the webapp](https://i.imgur.com/uOqjXuu.png)
 
 This application was build using the following tools:
-- ![Mapbox-GL](https://github.com/mapbox/mapbox-gl-js)
+- [Mapbox-GL](https://github.com/mapbox/mapbox-gl-js)
 - Mapbox-directions
 - Mapbox-gl-circle
 - Luchtmeetnet OpenAPI RIVM
