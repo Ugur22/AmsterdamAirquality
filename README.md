@@ -6,11 +6,11 @@ The purpose of this platform is to find out whether cyclists in Amsterdam become
 
 This application was build using the following tools:
 - [Mapbox-GL](https://github.com/mapbox/mapbox-gl-js)
-- Mapbox-directions
-- Mapbox-gl-circle
-- Luchtmeetnet OpenAPI RIVM
-- React
-- D3
+- [Mapbox-directions](https://github.com/mapbox/mapbox-gl-directions/)
+- [Mapbox-gl-circle](https://github.com/ryanhamley/mapbox-gl-circle)
+- [Luchtmeetnet OpenAPI RIVM](https://api-docs.luchtmeetnet.nl/?version=latest)
+- [React](https://github.com/facebook/react)
+- [D3-scale](https://github.com/d3/d3-scale)
 
 
 ## Available commands within the project
