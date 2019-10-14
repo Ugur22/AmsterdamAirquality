@@ -15,7 +15,7 @@ This application was build using the following tools:
 
 ## Available commands within the project
 
-### npm install
+### `npm install`
 
 This installs all the necessary npm packages for the application to run. 
 
