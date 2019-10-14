@@ -1,6 +1,6 @@
 ## Bicycle Routeplanner
 
-The purpose of this platform is to ind out whether cyclists in Amsterdam become more aware of how air quality influences your health. We are also researching how this knowledge canbe converted into behavioral change.  
+The purpose of this platform is to find out whether cyclists in Amsterdam become more aware of how air quality influences your health. We are also researching how this knowledge can be translated into behavioral change.  
 
 ![Example Image of the webapp](https://i.imgur.com/uOqjXuu.png)
 
