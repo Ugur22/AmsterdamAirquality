@@ -20,14 +20,3 @@ export const getNowHourISO = () => {
 }
 
 
-export const getMonthAgoHourISO = () => {
-  const now = new Date()
-
-  now.setDate( now.getDate() - 60)
-
-  return now.getUTCFullYear()
-    + '-' + pad(now.getUTCMonth() + 1)
-    + '-' + pad(now.getUTCDate())
-    + 'T' + pad(now.getUTCHours())
-    + ':00:00.000Z'
-}

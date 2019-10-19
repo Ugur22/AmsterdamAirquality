@@ -10,10 +10,11 @@ import MapboxCircle from "mapbox-gl-circle";
 import { getNowHourISO } from "./settings/time";
 import { Accordion, AccordionItem } from "react-sanfona";
 import axios from "axios";
+import { average } from "geolocation-utils";
 
 mapboxgl.accessToken = "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
 
-// set up parameters for the mapbox-directions API
+// set up parameters for the mapbox-directions API(https://github.com/mapbox/mapbox-gl-directions/blob/master/API.md)
 let directions = new MapboxDirections({
   accessToken: mapboxgl.accessToken,
   unit: "metric",
@@ -34,6 +35,9 @@ const { lng, lat, zoom } = {
   lat: 52.3709,
   zoom: 13
 };
+var p = 0.017453292519943295;
+var c = Math.cos;
+var R = 6371;
 
 let score, duration, data;
 
@@ -59,17 +63,13 @@ export default class Direction extends React.Component {
 
   // function to calculate the distance between two GPS coordinates
   getDistanceFromLatLonInMeters(latitude1, longitude1, latitude2, longitude2) {
-    var p = 0.017453292519943295;
-    var c = Math.cos;
     var a = 0.5 - c((latitude2 - latitude1) * p) / 2 + (c(latitude1 * p) * c(latitude2 * p) * (1 - c((longitude2 - longitude1) * p))) / 2;
-    var R = 6371;
     var dist = 2 * R * Math.asin(Math.sqrt(a) * 1000);
 
     return dist.toFixed(0);
   }
 
   componentDidMount() {
-    document.title = "N02 bicycle route planner";
     let collectionMeasurements = [];
 
     let start = getNowHourISO();
@@ -99,8 +99,10 @@ export default class Direction extends React.Component {
     let locationsStep = [];
     let durationSteps = [];
 
+    let colorsArray, colorToHex;
+
     let steps = [];
-    let radiusCircle = 500;
+    let radiusCircle = 200;
     score = this.state.score;
     let data;
     let circlesCenter = [];
@@ -119,7 +121,38 @@ export default class Direction extends React.Component {
 
     // triggers whenever mapbox loads
     map.on("load", () => {
-      // functions to translate rgb values to hex values which can be then used for the Mapboxcircles
+      if (typeof Number.prototype.toRad === "undefined") {
+        Number.prototype.toRad = function() {
+          return (this * Math.PI) / 180;
+        };
+      }
+
+      //-- Define degrees function
+      if (typeof Number.prototype.toDeg === "undefined") {
+        Number.prototype.toDeg = function() {
+          return this * (180 / Math.PI);
+        };
+      }
+
+      function middlePoint(lat1, lng1, lat2, lng2) {
+        //-- Longitude difference
+        var dLng = (lng2 - lng1).toRad();
+
+        //-- Convert to radians
+        lat1 = lat1.toRad();
+        lat2 = lat2.toRad();
+        lng1 = lng1.toRad();
+
+        var bX = Math.cos(lat2) * Math.cos(dLng);
+        var bY = Math.cos(lat2) * Math.sin(dLng);
+        var lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + bX) * (Math.cos(lat1) + bX) + bY * bY));
+        var lng3 = lng1 + Math.atan2(bY, Math.cos(lat1) + bX);
+
+        //-- Return result
+        return [lng3.toDeg(), lat3.toDeg()];
+      }
+
+      // functions to translate rgb values to hex values which in turn can be used to color the Mapbox circles
       function componentToHex(c) {
         var hex = c.toString(16);
         return hex.length === 1 ? "0" + hex : hex;
@@ -131,13 +164,11 @@ export default class Direction extends React.Component {
       data = collectionMeasurements[0];
 
       for (let i = 0; i < data.length; i++) {
-        let colorsArray = getColorArray(color(data[i].value, [0, 55]));
-        let colorToHex = rgbToHex(colorsArray[0], colorsArray[1], colorsArray[2]);
-
+        colorsArray = getColorArray(color(data[i].value, [0, 55]));
+        colorToHex = rgbToHex(colorsArray[0], colorsArray[1], colorsArray[2]);
         // Draw the circles
         radiusAirQuality = new MapboxCircle({ lat: data[i].coordinates[0], lng: data[i].coordinates[1] }, radiusCircle, {
           editable: false,
-          minRadius: 500,
           strokeWeight: 1,
           refineStroke: true,
           strokeOpacity: 1,
@@ -148,11 +179,13 @@ export default class Direction extends React.Component {
         // add the circles to the map
         radiusAirQuality.addTo(map);
         circlesCenter.push({
-          radiusAirQuality,
+          latitude: radiusAirQuality._currentCenterLngLat[1],
+          longitude: radiusAirQuality._currentCenterLngLat[0],
+          radius: radiusAirQuality._lastRadius,
+          realStation: true,
           value: data[i].value
         });
-
-        // create Geojson object to add to the map
+        // create Geojson object because Mapbox only allows geojson on it's map
         stations.features.push({
           type: "Feature",
           properties: {
@@ -164,10 +197,6 @@ export default class Direction extends React.Component {
           }
         });
       }
-
-      // lets mapbox use fullscreen
-      map.resize();
-
       // add airquality measuring value to center of cirkel on the map
       map.addSource("stations", {
         type: "geojson",
@@ -185,7 +214,7 @@ export default class Direction extends React.Component {
           "text-variable-anchor": ["top", "bottom", "left", "right"],
           "text-radial-offset": 0.5,
           "text-justify": "auto",
-          "text-size": 14
+          "text-size": 16
         },
         paint: {
           "text-color": "#ffffff"
@@ -199,6 +228,53 @@ export default class Direction extends React.Component {
           "circle-color": "#ffffff"
         }
       });
+      // lets mapbox use fullscreen
+      map.resize();
+
+      let averageValue;
+      let distanceCirkels = [];
+      for (let j = 0; j < circlesCenter.length; j++) {
+        for (let i = 0; i < circlesCenter.length; i++) {
+          averageValue = (circlesCenter[j].value + circlesCenter[i].value) / 2;
+          colorsArray = getColorArray(color(averageValue, [0, 55]));
+          colorToHex = rgbToHex(colorsArray[0], colorsArray[1], colorsArray[2]);
+          let checkHit = this.getDistanceFromLatLonInMeters(circlesCenter[j].latitude, circlesCenter[j].longitude, circlesCenter[i].latitude, circlesCenter[i].longitude);
+
+          if (checkHit > 0) {
+            if (distanceCirkels.indexOf(Number(checkHit)) === -1) {
+              distanceCirkels.push(Number(checkHit));
+
+              radiusAirQuality = new MapboxCircle(
+                {
+                  lat: middlePoint(circlesCenter[j].latitude, circlesCenter[j].longitude, circlesCenter[i].latitude, circlesCenter[i].longitude)[1],
+                  lng: middlePoint(circlesCenter[j].latitude, circlesCenter[j].longitude, circlesCenter[i].latitude, circlesCenter[i].longitude)[0]
+                },
+                radiusCircle,
+                {
+                  editable: false,
+                  strokeWeight: 1,
+                  refineStroke: true,
+                  strokeOpacity: 1,
+                  fillOpacity: 0.2,
+                  strokeColor: colorToHex,
+                  fillColor: colorToHex
+                }
+              );
+              // add the circles to the map
+
+              radiusAirQuality.addTo(map);
+
+              circlesCenter.push({
+                latitudes: middlePoint(circlesCenter[j].latitude, circlesCenter[j].longitude, circlesCenter[i].latitude, circlesCenter[i].longitude)[1],
+                longitude: middlePoint(circlesCenter[j].latitude, circlesCenter[j].longitude, circlesCenter[i].latitude, circlesCenter[i].longitude)[0],
+                realStation: true,
+                value: averageValue
+              });
+            }
+          }
+        }
+      }
+      console.log(circlesCenter);
     });
 
     // clear score after starting new route
@@ -259,14 +335,10 @@ export default class Direction extends React.Component {
       let totalScore = 0;
 
       // check the distance between two coordinates
+
       for (let i = 0; i < circlesCenter.length; i++) {
         for (let j = 0; j < locationsStep.length; j++) {
-          let checkHit = this.getDistanceFromLatLonInMeters(
-            locationsStep[j][1],
-            locationsStep[j][0],
-            circlesCenter[i].radiusAirQuality._lastCenterLngLat[1],
-            circlesCenter[i].radiusAirQuality._lastCenterLngLat[0]
-          );
+          let checkHit = this.getDistanceFromLatLonInMeters(locationsStep[j][1], locationsStep[j][0], circlesCenter[i].lat, circlesCenter[i].lon);
           if (checkHit <= radiusCircle) {
             checkhitCount++;
             durationCount += (locationsStep[j].duration / 60).toFixed(0) * circlesCenter[i].value;
@@ -289,6 +361,7 @@ export default class Direction extends React.Component {
       locationsStep = [];
       durationSteps = [];
     });
+
     map.addControl(directions, "top-left");
   }
 
@@ -315,7 +388,7 @@ export default class Direction extends React.Component {
               <div className="score">
                 {duration ? <p>duration route: {duration} minutes</p> : null}
                 {score ? <p> Score: {score}</p> : <p>Create a route to get a recommendation</p>}
-                {score > 0 && score < 45 && (
+                {score > 0 && score < 50 && (
                   <div>
                     <span label="smile" role="img" aria-label="smile" className="emoji">
                       😀
@@ -323,7 +396,7 @@ export default class Direction extends React.Component {
                     <p>This is a safe route and you will hardly be exposed to air pollution.</p>
                   </div>
                 )}
-                {score >= 45 && score < 100 && (
+                {score >= 50 && score < 100 && (
                   <div>
                     <span label="thinking" role="img" aria-label="thinking" className="emoji">
                       🤔
@@ -354,7 +427,6 @@ export default class Direction extends React.Component {
                 <p>
                   NO2 is caused by a reaction between nitrogen dioxide and ozone. Weather and traffic have a major impact on concentration. The legal standard is an annual average of 40 (μg / m3).
                 </p>
-
                 <h2>What is the effect of NO2 on our health?</h2>
                 <p>Lung irritation, reduced resistance, respiratory infections. Chronic exposure to current NO2 levels leads to an average lifespan reduction of 4 months.</p>
 
@@ -371,9 +443,9 @@ export default class Direction extends React.Component {
                   point by clicking on the map. Based on your route you will receive a score with an explanation that indicates how safe the route is for you.
                 </p>
                 <div className="explainApp">
-                  <img src="asset/img/explain-1.png" alt="stap 1 kies een vetrekpunt" />
-                  <img src="asset/img/explain-2.png" alt=" stap 2 maak ene route " />
-                  <img src="asset/img/explain-3.png" alt="stap 3 check je score" />
+                  <img src="asset/img/explain-1.png" alt="step 1 choose starting point" />
+                  <img src="asset/img/explain-2.png" alt=" step 2 choose a destination" />
+                  <img src="asset/img/explain-3.png" alt="stap 3 check your score and recommendation" />
                 </div>
               </div>
             </InfoPanel>
