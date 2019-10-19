@@ -10,7 +10,6 @@ import MapboxCircle from "mapbox-gl-circle";
 import { getNowHourISO } from "./settings/time";
 import { Accordion, AccordionItem } from "react-sanfona";
 import axios from "axios";
-import { average } from "geolocation-utils";
 
 mapboxgl.accessToken = "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
 
@@ -166,6 +165,13 @@ export default class Direction extends React.Component {
       for (let i = 0; i < data.length; i++) {
         colorsArray = getColorArray(color(data[i].value, [0, 55]));
         colorToHex = rgbToHex(colorsArray[0], colorsArray[1], colorsArray[2]);
+
+        let NewMeasurement = {
+          latitude: data[i].coordinates[0],
+          longitude: data[i].coordinates[1],
+          realStation: true,
+          value: Number(data[i].value.toFixed())
+        };
         // Draw the circles
         radiusAirQuality = new MapboxCircle({ lat: data[i].coordinates[0], lng: data[i].coordinates[1] }, radiusCircle, {
           editable: false,
@@ -178,22 +184,68 @@ export default class Direction extends React.Component {
         });
         // add the circles to the map
         radiusAirQuality.addTo(map);
-        circlesCenter.push({
-          latitude: radiusAirQuality._currentCenterLngLat[1],
-          longitude: radiusAirQuality._currentCenterLngLat[0],
-          radius: radiusAirQuality._lastRadius,
-          realStation: true,
-          value: data[i].value
-        });
-        // create Geojson object because Mapbox only allows geojson on it's map
+        circlesCenter.push(NewMeasurement);
+      }
+
+      // lets mapbox use fullscreen
+      map.resize();
+
+      let averageValue;
+      let distanceCirkels = [];
+      let NewMeasurement;
+
+      circlesCenter.forEach((cirkel, index) => {
+        for (let i = 0; i < circlesCenter.length; i++) {
+          averageValue = (cirkel.value + circlesCenter[i].value) / 2;
+          colorsArray = getColorArray(color(averageValue, [0, 55]));
+          colorToHex = rgbToHex(colorsArray[0], colorsArray[1], colorsArray[2]);
+          let checkHit = this.getDistanceFromLatLonInMeters(cirkel.latitude, cirkel.longitude, circlesCenter[i].latitude, circlesCenter[i].longitude);
+
+          if (checkHit > 0) {
+            if (distanceCirkels.indexOf(Number(checkHit)) === -1) {
+              distanceCirkels.push(Number(checkHit));
+
+              NewMeasurement = {
+                latitude: middlePoint(cirkel.latitude, cirkel.longitude, circlesCenter[i].latitude, circlesCenter[i].longitude)[1],
+                longitude: middlePoint(cirkel.latitude, cirkel.longitude, circlesCenter[i].latitude, circlesCenter[i].longitude)[0],
+                realStation: true,
+                value: Number(averageValue.toFixed(0))
+              };
+
+              radiusAirQuality = new MapboxCircle(
+                {
+                  lat: middlePoint(cirkel.latitude, cirkel.longitude, circlesCenter[i].latitude, circlesCenter[i].longitude)[1],
+                  lng: middlePoint(cirkel.latitude, cirkel.longitude, circlesCenter[i].latitude, circlesCenter[i].longitude)[0]
+                },
+                radiusCircle,
+                {
+                  editable: false,
+                  strokeWeight: 1,
+                  refineStroke: true,
+                  strokeOpacity: 1,
+                  fillOpacity: 0.2,
+                  strokeColor: colorToHex,
+                  fillColor: colorToHex
+                }
+              );
+              // add the circles to the map
+              radiusAirQuality.addTo(map);
+            }
+          }
+        }
+        circlesCenter.push(NewMeasurement);
+      });
+      console.log(circlesCenter);
+      // create Geojson object because Mapbox only allows geojson on it's map
+      for (let i = 0; i < circlesCenter.length; i++) {
         stations.features.push({
           type: "Feature",
           properties: {
-            value: data[i].value + " μg/m3"
+            value: circlesCenter[i].value + " μg/m3"
           },
           geometry: {
             type: "Point",
-            coordinates: [data[i].coordinates[1], data[i].coordinates[0]]
+            coordinates: [circlesCenter[i].longitude, circlesCenter[i].latitude]
           }
         });
       }
@@ -228,53 +280,6 @@ export default class Direction extends React.Component {
           "circle-color": "#ffffff"
         }
       });
-      // lets mapbox use fullscreen
-      map.resize();
-
-      let averageValue;
-      let distanceCirkels = [];
-      for (let j = 0; j < circlesCenter.length; j++) {
-        for (let i = 0; i < circlesCenter.length; i++) {
-          averageValue = (circlesCenter[j].value + circlesCenter[i].value) / 2;
-          colorsArray = getColorArray(color(averageValue, [0, 55]));
-          colorToHex = rgbToHex(colorsArray[0], colorsArray[1], colorsArray[2]);
-          let checkHit = this.getDistanceFromLatLonInMeters(circlesCenter[j].latitude, circlesCenter[j].longitude, circlesCenter[i].latitude, circlesCenter[i].longitude);
-
-          if (checkHit > 0) {
-            if (distanceCirkels.indexOf(Number(checkHit)) === -1) {
-              distanceCirkels.push(Number(checkHit));
-
-              radiusAirQuality = new MapboxCircle(
-                {
-                  lat: middlePoint(circlesCenter[j].latitude, circlesCenter[j].longitude, circlesCenter[i].latitude, circlesCenter[i].longitude)[1],
-                  lng: middlePoint(circlesCenter[j].latitude, circlesCenter[j].longitude, circlesCenter[i].latitude, circlesCenter[i].longitude)[0]
-                },
-                radiusCircle,
-                {
-                  editable: false,
-                  strokeWeight: 1,
-                  refineStroke: true,
-                  strokeOpacity: 1,
-                  fillOpacity: 0.2,
-                  strokeColor: colorToHex,
-                  fillColor: colorToHex
-                }
-              );
-              // add the circles to the map
-
-              radiusAirQuality.addTo(map);
-
-              circlesCenter.push({
-                latitudes: middlePoint(circlesCenter[j].latitude, circlesCenter[j].longitude, circlesCenter[i].latitude, circlesCenter[i].longitude)[1],
-                longitude: middlePoint(circlesCenter[j].latitude, circlesCenter[j].longitude, circlesCenter[i].latitude, circlesCenter[i].longitude)[0],
-                realStation: true,
-                value: averageValue
-              });
-            }
-          }
-        }
-      }
-      console.log(circlesCenter);
     });
 
     // clear score after starting new route
@@ -334,11 +339,10 @@ export default class Direction extends React.Component {
       let durationCount = 0;
       let totalScore = 0;
 
-      // check the distance between two coordinates
-
+      // check the distance between a directionpoint and a cirkel
       for (let i = 0; i < circlesCenter.length; i++) {
         for (let j = 0; j < locationsStep.length; j++) {
-          let checkHit = this.getDistanceFromLatLonInMeters(locationsStep[j][1], locationsStep[j][0], circlesCenter[i].lat, circlesCenter[i].lon);
+          let checkHit = this.getDistanceFromLatLonInMeters(locationsStep[j][1], locationsStep[j][0], circlesCenter[i].latitude, circlesCenter[i].longitude);
           if (checkHit <= radiusCircle) {
             checkhitCount++;
             durationCount += (locationsStep[j].duration / 60).toFixed(0) * circlesCenter[i].value;
