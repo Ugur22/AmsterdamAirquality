@@ -24,7 +24,7 @@ let directions = new MapboxDirections({
   zoom: 13,
   interactive: true,
   controls: {
-    instructions: false,
+    instructions: true,
     profileSwitcher: false
   }
 });
@@ -101,7 +101,7 @@ export default class Direction extends React.Component {
     let colorsArray, colorToHex;
 
     let steps = [];
-    let radiusCircle = 200;
+    let radiusCircle = 500;
     score = this.state.score;
     let data;
     let circlesCenter = [];
@@ -109,6 +109,8 @@ export default class Direction extends React.Component {
       type: "FeatureCollection",
       features: []
     };
+
+    let arrayData = [];
 
     // set up for the mapstyle used
     const map = new mapboxgl.Map({
@@ -178,7 +180,7 @@ export default class Direction extends React.Component {
           strokeWeight: 1,
           refineStroke: true,
           strokeOpacity: 1,
-          fillOpacity: 0.2,
+          fillOpacity: 0.4,
           strokeColor: colorToHex,
           fillColor: colorToHex
         });
@@ -193,15 +195,16 @@ export default class Direction extends React.Component {
       let averageValue;
       let distanceCirkels = [];
       let NewMeasurement;
+      let newArray = [];
 
-      circlesCenter.forEach((cirkel, index) => {
+      circlesCenter.forEach((cirkel) => {
         for (let i = 0; i < circlesCenter.length; i++) {
           averageValue = (cirkel.value + circlesCenter[i].value) / 2;
           colorsArray = getColorArray(color(averageValue, [0, 55]));
           colorToHex = rgbToHex(colorsArray[0], colorsArray[1], colorsArray[2]);
           let checkHit = this.getDistanceFromLatLonInMeters(cirkel.latitude, cirkel.longitude, circlesCenter[i].latitude, circlesCenter[i].longitude);
 
-          if (checkHit > 0) {
+          if (checkHit > 0 && checkHit <= 12000) {
             if (distanceCirkels.indexOf(Number(checkHit)) === -1) {
               distanceCirkels.push(Number(checkHit));
 
@@ -230,22 +233,23 @@ export default class Direction extends React.Component {
               );
               // add the circles to the map
               radiusAirQuality.addTo(map);
+              newArray.push(NewMeasurement);
             }
           }
         }
-        circlesCenter.push(NewMeasurement);
       });
-      console.log(circlesCenter);
+
+      [...arrayData] = [...circlesCenter, ...newArray];
       // create Geojson object because Mapbox only allows geojson on it's map
-      for (let i = 0; i < circlesCenter.length; i++) {
+      for (let i = 0; i < arrayData.length; i++) {
         stations.features.push({
           type: "Feature",
           properties: {
-            value: circlesCenter[i].value + " μg/m3"
+            value: arrayData[i].value + " μg/m3"
           },
           geometry: {
             type: "Point",
-            coordinates: [circlesCenter[i].longitude, circlesCenter[i].latitude]
+            coordinates: [arrayData[i].longitude, arrayData[i].latitude]
           }
         });
       }
@@ -292,6 +296,7 @@ export default class Direction extends React.Component {
 
     // Triggers whenever a route has been made by a user
     directions.on("route", direction => {
+      console.log(direction);
       duration = direction.route[0].duration / 60;
       this.setState({
         duration: duration.toFixed(0)
@@ -338,22 +343,27 @@ export default class Direction extends React.Component {
       let checkhitCount = 0;
       let durationCount = 0;
       let totalScore = 0;
+      let valueCount = 0;
 
-      // check the distance between a directionpoint and a cirkel
-      for (let i = 0; i < circlesCenter.length; i++) {
+      // check the distance between two coordinates
+      for (let i = 0; i < arrayData.length; i++) {
         for (let j = 0; j < locationsStep.length; j++) {
-          let checkHit = this.getDistanceFromLatLonInMeters(locationsStep[j][1], locationsStep[j][0], circlesCenter[i].latitude, circlesCenter[i].longitude);
+          let checkHit = this.getDistanceFromLatLonInMeters(locationsStep[j][1], locationsStep[j][0], arrayData[i].latitude, arrayData[i].longitude);
           if (checkHit <= radiusCircle) {
             checkhitCount++;
-            durationCount += (locationsStep[j].duration / 60).toFixed(0) * circlesCenter[i].value;
+            // console.log(checkhitCount);
+            // console.log(checkHit);
+            durationCount += locationsStep[j].duration;
+            valueCount += arrayData[i].value;
+            console.log(valueCount);
           }
         }
       }
-
-      totalScore = durationCount / checkhitCount;
+      let durationMinutes = Number(durationCount / 60).toFixed(0);
+      totalScore = (valueCount * durationMinutes) / checkhitCount;
 
       this.setState({
-        score: totalScore.toFixed(0)
+        score: Number(totalScore).toFixed(0)
       });
 
       if (checkhitCount <= 0) {
@@ -392,7 +402,7 @@ export default class Direction extends React.Component {
               <div className="score">
                 {duration ? <p>duration route: {duration} minutes</p> : null}
                 {score ? <p> Score: {score}</p> : <p>Create a route to get a recommendation</p>}
-                {score > 0 && score < 50 && (
+                {score > 0 && score <= 800 && (
                   <div>
                     <span label="smile" role="img" aria-label="smile" className="emoji">
                       😀
@@ -400,7 +410,7 @@ export default class Direction extends React.Component {
                     <p>This is a safe route and you will hardly be exposed to air pollution.</p>
                   </div>
                 )}
-                {score >= 50 && score < 100 && (
+                {score > 800 && score < 900 && (
                   <div>
                     <span label="thinking" role="img" aria-label="thinking" className="emoji">
                       🤔
@@ -408,7 +418,7 @@ export default class Direction extends React.Component {
                     <p>This route slightly exposes you to air pollution, but you could get a cleaner route</p>
                   </div>
                 )}
-                {score >= 100 && (
+                {score >= 900 && (
                   <div>
                     <span label="sick" role="img" aria-label="sick" className="emoji">
                       😷
