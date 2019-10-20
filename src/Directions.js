@@ -181,7 +181,7 @@ export default class Direction extends React.Component {
           refineStroke: true,
           strokeOpacity: 1,
           fillOpacity: 0.4,
-          strokeColor: "colorToHex",
+          strokeColor: colorToHex,
           fillColor: colorToHex
         });
         // add the circles to the map
