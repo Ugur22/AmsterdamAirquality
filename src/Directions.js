@@ -25,7 +25,7 @@ let directions = new MapboxDirections({
   interactive: true,
   controls: {
     instructions: true,
-    profileSwitcher: false
+    profileSwitcher: true
   }
 });
 
@@ -46,7 +46,7 @@ export default class Direction extends React.Component {
 
     this.state = {
       data: [],
-      render: false,
+      render: true,
       score: 0,
       duration
     };
@@ -197,7 +197,7 @@ export default class Direction extends React.Component {
       let NewMeasurement;
       let newArray = [];
 
-      circlesCenter.forEach((cirkel) => {
+      circlesCenter.forEach(cirkel => {
         for (let i = 0; i < circlesCenter.length; i++) {
           averageValue = (cirkel.value + circlesCenter[i].value) / 2;
           colorsArray = getColorArray(color(averageValue, [0, 55]));
@@ -296,7 +296,7 @@ export default class Direction extends React.Component {
 
     // Triggers whenever a route has been made by a user
     directions.on("route", direction => {
-      console.log(direction);
+      let profileRoute = direction.route[0].weight_name;
       duration = direction.route[0].duration / 60;
       this.setState({
         duration: duration.toFixed(0)
@@ -355,9 +355,11 @@ export default class Direction extends React.Component {
             // console.log(checkHit);
             durationCount += locationsStep[j].duration;
             valueCount += arrayData[i].value;
-            console.log(valueCount);
           }
         }
+      }
+      if (profileRoute === "routability") {
+        valueCount = valueCount / 2.1;
       }
       let durationMinutes = Number(durationCount / 60).toFixed(0);
       totalScore = (valueCount * durationMinutes) / checkhitCount;
@@ -436,7 +438,7 @@ export default class Direction extends React.Component {
           <div className="explainPopup">
             <InfoPanel closeInfoPanel={this.closeInfoPanel}>
               <div className="direction-pop-up">
-                <h1>N02 bicycle route planner</h1>
+                <h1>Bicycle RoutePlanner</h1>
                 <h2>What is nitrogen dioxide (No2)?</h2>
                 <p>
                   NO2 is caused by a reaction between nitrogen dioxide and ozone. Weather and traffic have a major impact on concentration. The legal standard is an annual average of 40 (μg / m3).
