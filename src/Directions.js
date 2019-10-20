@@ -137,17 +137,17 @@ export default class Direction extends React.Component {
 
       function middlePoint(lat1, lng1, lat2, lng2) {
         //-- Longitude difference
-        var dLng = (lng2 - lng1).toRad();
+        let dLng = (lng2 - lng1).toRad();
 
         //-- Convert to radians
         lat1 = lat1.toRad();
         lat2 = lat2.toRad();
         lng1 = lng1.toRad();
 
-        var bX = Math.cos(lat2) * Math.cos(dLng);
-        var bY = Math.cos(lat2) * Math.sin(dLng);
-        var lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + bX) * (Math.cos(lat1) + bX) + bY * bY));
-        var lng3 = lng1 + Math.atan2(bY, Math.cos(lat1) + bX);
+        let bX = Math.cos(lat2) * Math.cos(dLng);
+        let bY = Math.cos(lat2) * Math.sin(dLng);
+        let lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + bX) * (Math.cos(lat1) + bX) + bY * bY));
+        let lng3 = lng1 + Math.atan2(bY, Math.cos(lat1) + bX);
 
         //-- Return result
         return [lng3.toDeg(), lat3.toDeg()];
@@ -155,7 +155,7 @@ export default class Direction extends React.Component {
 
       // functions to translate rgb values to hex values which in turn can be used to color the Mapbox circles
       function componentToHex(c) {
-        var hex = c.toString(16);
+        let hex = c.toString(16);
         return hex.length === 1 ? "0" + hex : hex;
       }
       function rgbToHex(r, g, b) {
@@ -181,7 +181,7 @@ export default class Direction extends React.Component {
           refineStroke: true,
           strokeOpacity: 1,
           fillOpacity: 0.4,
-          strokeColor: colorToHex,
+          strokeColor: "colorToHex",
           fillColor: colorToHex
         });
         // add the circles to the map
