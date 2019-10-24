@@ -2,7 +2,7 @@
 
 The purpose of this platform is to find out whether cyclists in Amsterdam become more aware of how air quality influences your health and we are researching if this knowledge can translate into behavioral change.  
 
-![Example Image of the webapp](https://i.imgur.com/uOqjXuu.png)
+![Example Image of the webapp](https://i.imgur.com/WL0P2rh.png)
 
 This application was build using the following tools:
 - [Mapbox-GL](https://github.com/mapbox/mapbox-gl-js)
