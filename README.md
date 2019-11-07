@@ -1,9 +1,6 @@
 
 ## demo use Deck.gl
 
-This project is used as an example to show what the capabilities are of the Deck.gl library in combination with React.js
-
-![Example Image of the webapp](https://i.imgur.com/MWZEr0F.png)
 
 ## Available Scripts
 
