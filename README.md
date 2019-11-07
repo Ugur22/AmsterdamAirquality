@@ -1,6 +1,4 @@
 
-## demo use Deck.gl
-
 
 ## Available Scripts
 
