@@ -46,7 +46,7 @@ export default class Direction extends React.Component {
 
     this.state = {
       data: [],
-      render: true,
+      render: false,
       score: 0,
       duration
     };
@@ -169,13 +169,13 @@ export default class Direction extends React.Component {
         colorToHex = rgbToHex(colorsArray[0], colorsArray[1], colorsArray[2]);
 
         let NewMeasurement = {
-          latitude: data[i].coordinates[0],
-          longitude: data[i].coordinates[1],
+          latitude: data[i].coordinates[1],
+          longitude: data[i].coordinates[0],
           realStation: true,
           value: Number(data[i].value.toFixed())
         };
         // Draw the circles
-        radiusAirQuality = new MapboxCircle({ lat: data[i].coordinates[0], lng: data[i].coordinates[1] }, radiusCircle, {
+        radiusAirQuality = new MapboxCircle({ lat: data[i].coordinates[1], lng: data[i].coordinates[0] }, radiusCircle, {
           editable: false,
           strokeWeight: 1,
           refineStroke: true,
