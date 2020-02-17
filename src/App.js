@@ -37,7 +37,7 @@ export default class App extends React.Component {
     this.state = {
       data: [],
       stationInfo: null,
-      render: true
+      render: false
     };
 
     this.closeInfoPanel = this.closeInfoPanel.bind(this);
@@ -99,7 +99,6 @@ export default class App extends React.Component {
 
     Promise.all(urls.map(url => fetch(url).then(resp => resp.json()))).then(([results]) => {
       const data = results.map(station => {
-        station.coordinates = station.coordinates.reverse();
         return station;
       });
 
