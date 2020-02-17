@@ -13,6 +13,7 @@ This application was build using the following tools:
 - [D3-scale](https://github.com/d3/d3-scale)
 
 
+
 ## Available commands within the project
 
 ### `npm install`
