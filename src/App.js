@@ -15,7 +15,6 @@ import { Accordion, AccordionItem } from "react-sanfona";
 
 const MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoidWd1cjIyIiwiYSI6ImNqc2N6azM5bTAxc240M3J4MXZ1bDVyNHMifQ.rI_KbRwW8MShCcPNLsB6zA";
 const mapStyle = "mapbox://styles/ugur22/cjw1xdexp03td1crpzxagiywf";
-
 const INITIAL_VIEW_STATE = {
   longitude: 4.8972,
   latitude: 52.3709,
@@ -27,6 +26,7 @@ const INITIAL_VIEW_STATE = {
 };
 
 let data;
+let controlsOn = true;
 
 export default class App extends React.Component {
   state = {};
@@ -71,6 +71,7 @@ export default class App extends React.Component {
   }
 
   closeInfoPanel() {
+    controlsOn = true;
     this.setState({
       clickedObject: null,
       render: false
@@ -81,6 +82,7 @@ export default class App extends React.Component {
     const { clickedObject } = this.state || {};
 
     if (clickedObject != null) {
+      controlsOn = false;
       return (
         <InfoPanel closeInfoPanel={this.closeInfoPanel}>
           <Detailgraph clickedObject={clickedObject.station_number} />
@@ -108,6 +110,8 @@ export default class App extends React.Component {
 
   render() {
     data = this.state.data;
+
+    console.log(data)
     const cellSize = 100;
     const elevation = scaleLinear([0, 10], [0, 1]);
     const layers = [
@@ -137,7 +141,7 @@ export default class App extends React.Component {
 
     return (
       <div>
-        <DeckGL layers={layers} initialViewState={INITIAL_VIEW_STATE} controller={true}>
+        <DeckGL layers={layers} initialViewState={INITIAL_VIEW_STATE} controller={controlsOn}>
           <StaticMap mapStyle={mapStyle} mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} />
           {this.renderTooltip.bind(this)}
           {this.renderStation.bind(this)}

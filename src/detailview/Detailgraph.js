@@ -47,7 +47,7 @@ class Detailgraph extends React.Component {
 
   xAxisTickFormatter(timestamp_measured) {
 
-    
+
     return moment(timestamp_measured)
       .format("ll")
       .slice(0, 5);
@@ -85,7 +85,7 @@ class Detailgraph extends React.Component {
         {this.state.data ? (
           <div className="panel-description">
             <h1 className="panel-header">Station: {stationInfo.data.location}</h1>
-            <p className="Panel-subtext">{stationInfo.data.description.EN}</p>
+            <p className="Panel-subtext">De hoogste concentraties stikstofdioxide (NO2) komen voor tijdens de ochtend- en avondspits. Deze stof komt vrij door het (weg)verkeer, energieproductie en industrie. Daarnaast ontstaat NO2 uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van 40 (μg/m3)</p>
             <ResponsiveContainer width={"100%"} height={chartHeight} >
               <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                 <defs>
@@ -95,13 +95,13 @@ class Detailgraph extends React.Component {
                     })}
                   </linearGradient>
                 </defs>
-                <XAxis  padding={{ left: 5 }}  dataKey="timestamp_measured" tickFormatter={this.xAxisTickFormatter}  tickSize={4} dx={8} allowDataOverflow={true}/>
-                <YAxis type="number" domain={[0, 200]} padding={{ top: 2.5, bottom: 5 }}  height={chartHeight}  stroke="url(#colorUv)" strokeWidth={5} tick={{stroke: '#000000', fill:'#000000', strokeWidth:0.2}}  />
-                <Tooltip content={this.CustomTooltip} animationDuration={0}   />
+                <XAxis padding={{ left: 5 }} dataKey="timestamp_measured" tickFormatter={this.xAxisTickFormatter} tickSize={4} dx={8} allowDataOverflow={true} />
+                <YAxis type="number" domain={[0, 200]} padding={{ top: 2.5, bottom: 5 }} height={chartHeight} stroke="url(#colorUv)" strokeWidth={5} tick={{ stroke: '#000000', fill: '#000000', strokeWidth: 0.2 }} />
+                <Tooltip content={this.CustomTooltip} animationDuration={0} />
                 <Line animationDuration={4000}
                   animationEasing={"ease-in-out"}
-                  margin={{ top: 10, right: 30,left: 0,bottom: 0  }}
-                  dataKey="value" stroke="url(#colorUv)"name="N02"type="natural"dot={false}  travellerWidth={4}strokeWidth={1} activeDot={{ fill: "#000000", stroke: "#FFFFFF", strokeWidth: 1, r: 5 }}/>
+                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                  dataKey="value" stroke="url(#colorUv)" name="N02" type="natural" dot={false} travellerWidth={4} strokeWidth={1} activeDot={{ fill: "#000000", stroke: "#FFFFFF", strokeWidth: 1, r: 5 }} />
                 <Brush dataKey="timestamp_measured" tickFormatter={this.xAxisTickFormatter} height={40} startIndex={Math.round(data.length * 0.75)} stroke="#34b5bb">
                   <LineChart>
                     <YAxis tick={false} width={0} hide domain={["auto", "auto"]} />
@@ -112,11 +112,11 @@ class Detailgraph extends React.Component {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="loading">
-            <img src="asset/img/loader.gif" alt="Loading animation" />
-            Loading...
+            <div className="loading">
+              <img src="asset/img/loader.gif" alt="Loading animation" />
+              Loading...
           </div>
-        )}
+          )}
       </div>
     );
   }
