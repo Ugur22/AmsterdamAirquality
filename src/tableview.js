@@ -1,13 +1,13 @@
 import React from "react";
 import "react-bulma-components/dist/react-bulma-components.min.css";
 import { Table } from "react-bulma-components";
-import { getNowHourISO } from "../settings/time";
-import InfoPanel from "../InfoPanel";
-import DetailViewTable from "./DetailViewTable";
+import { getNowHourISO } from "./settings/time";
+import InfoPanel from "./InfoPanel";
+import DetailViewTable from "./tableview/DetailViewTable";
 
 let data, render, number_station;
 
-class TableView extends React.Component {
+class tableview extends React.Component {
   state = {};
 
   constructor(props) {
@@ -59,8 +59,6 @@ class TableView extends React.Component {
     this.closeInfoPanel = this.closeInfoPanel.bind(this);
     this.renderStation = this.renderStation.bind(this);
     data = this.state.data;
-
-    console.log(data);
     return (
       <div>
         {this.state.render ? (
@@ -99,4 +97,4 @@ class TableView extends React.Component {
   }
 }
 
-export default TableView;
+export default tableview;

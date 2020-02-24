@@ -2,7 +2,7 @@ import React from "react";
 import { getNowHourISO, getMonthAgoHourISO } from "../settings/time.js";
 import moment from "moment";
 import localization from "moment/locale/nl-be";
-import { XAxis, YAxis, CartesianGrid, Tooltip, Label, Brush, ResponsiveContainer, BarChart, Bar } from "recharts";
+import { XAxis, YAxis, CartesianGrid, Tooltip, Brush, ResponsiveContainer, BarChart, Bar } from "recharts";
 
 class DetailViewTable extends React.Component {
   constructor(props) {
@@ -71,7 +71,7 @@ class DetailViewTable extends React.Component {
                 <CartesianGrid horizontal vertical={false} strokeDasharray="3 3" />
                 <XAxis tickMargin={5} dataKey="timestamp_measured" tickFormatter={this.xAxisTickFormatter} />
                 <YAxis type="number" domain={[0, 200]}>
-                  <Label angle={-90} value="nitrogen dioxide (NO2)" position="insideLeft" style={{ textAnchor: "middle" }} />
+                  {/* <Label angle={-90} value="nitrogen dioxide (NO2)" position="insideLeft" style={{ textAnchor: "middle" }} /> */}
                 </YAxis>
                 <Tooltip content={this.CustomTooltip} animationDuration={0} />
                 <Bar dataKey="value" name="N02" fill="#00d1b2" />
@@ -85,7 +85,7 @@ class DetailViewTable extends React.Component {
               </BarChart>
             </ResponsiveContainer>
             <p className="explain-N02">
-             {stationInfo.data.description.EN}
+            De hoogste concentraties stikstofdioxide (NO2) komen voor tijdens de ochtend- en avondspits. Deze stof komt vrij door het (weg)verkeer, energieproductie en industrie. Daarnaast ontstaat NO2 uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van 40 (μg/m3)
             </p>
           </div>
         ) : (
