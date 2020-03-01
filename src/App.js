@@ -1,7 +1,6 @@
 import React from "react";
 import DeckGL, { GridCellLayer } from "deck.gl";
 import { StaticMap } from "react-map-gl";
-// import {mapStyle} from './settings/mapStyle'
 
 import { color, getColorArray } from "./settings/util";
 import { scaleLinear } from "d3-scale";
@@ -22,7 +21,8 @@ const INITIAL_VIEW_STATE = {
   maxZoom: 16,
   minZoom: 12,
   pitch: 60,
-  bearing: 5
+  bearing: 5,
+  scrollZoom:false
 };
 
 let data;
@@ -111,7 +111,6 @@ export default class App extends React.Component {
   render() {
     data = this.state.data;
 
-    console.log(data)
     const cellSize = 100;
     const elevation = scaleLinear([0, 10], [0, 1]);
     const layers = [
@@ -141,7 +140,7 @@ export default class App extends React.Component {
 
     return (
       <div>
-        <DeckGL layers={layers} initialViewState={INITIAL_VIEW_STATE} controller={controlsOn}>
+        <DeckGL layers={layers} initialViewState={INITIAL_VIEW_STATE} controller={controlsOn} >
           <StaticMap mapStyle={mapStyle} mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN} />
           {this.renderTooltip.bind(this)}
           {this.renderStation.bind(this)}
@@ -199,7 +198,7 @@ export default class App extends React.Component {
               <h2>What is the purpose of this platform?</h2>
               <p>
                 The purpose of this platform is to ind out whether cyclists in Amsterdam become more aware of how air quality influences your health. We are also researching how this knowledge can be
-                converted into behavioral change.                       
+                converted into behavioral change.
               </p>
 
               <h2>How does it work?</h2>
