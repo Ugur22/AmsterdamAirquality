@@ -412,7 +412,7 @@ export default class Direction extends React.Component {
                     <p>This is a safe route and you will hardly be exposed to air pollution.</p>
                   </div>
                 )}
-                {score > 3000 && score < 4000 && (
+                {score > 2000 && score < 4000 && (
                   <div>
                     <span label="thinking" role="img" aria-label="thinking" className="emoji">
                       🤔
@@ -420,7 +420,7 @@ export default class Direction extends React.Component {
                     <p>This route slightly exposes you to air pollution, but you could get a cleaner route</p>
                   </div>
                 )}
-                {score >= 5000 && (
+                {score >= 4000 && (
                   <div>
                     <span label="sick" role="img" aria-label="sick" className="emoji">
                       😷
