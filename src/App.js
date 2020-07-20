@@ -19,10 +19,10 @@ const INITIAL_VIEW_STATE = {
   latitude: 52.3709,
   zoom: 13,
   maxZoom: 16,
-  minZoom: 9,
+  minZoom: 5,
   pitch: 60,
   bearing: 5,
-  scrollZoom:false
+  scrollZoom: false
 };
 
 let data;
@@ -95,8 +95,7 @@ export default class App extends React.Component {
     document.title = "Airquality insight platform";
     let start = getNowHourISO();
     const urls = [
-      `https://data.waag.org/api/getOfficialMeasurement?formula=NO2&start=${start}&end=${start}&
-      station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&&station_id=NL49021&&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016&station_id=NL01495`
+      `https://data.waag.org/api/getOfficialMeasurement?formula=NO2&start=${start}&end=${start}&station_id=NL10404&station_id=NL10445&station_id=NL10246&station_id=NL49553&station_id=NL49573&station_id=NL49572&station_id=NL49703&station_id=NL49556&station_id=NL49546&station_id=NL49002&station_id=NL49003&station_id=NL49007&station_id=NL49014&station_id=NL49016&station_id=NL49017&station_id=NL49019&station_id=NL49020&station_id=NL49021&station_id=NL49022&station_id=NL49012&station_id=NL10446&station_id=NL53015&station_id=NL49701&station_id=NL53001&station_id=NL53004&station_id=NL53016&station_id=NL53020&station_id=NL01496&station_id=NL10918&station_id=NL49704&station_id=NL10301&station_id=NL10938&station_id=NL01485&station_id=NL01491&station_id=NL01493&station_id=NL01487&station_id=NL01484&station_id=NL10107&station_id=NL10722&station_id=NL10818&station_id=NL10934&station_id=NL10929&station_id=NL10617&station_id=NL54004&station_id=NL54010&station_id=NL10538&station_id=NL10741&station_id=NL01488&station_id=NL10418&station_id=NL10937&station_id=NL10738&station_id=NL10138&station_id=NL01494&station_id=NL50004&station_id=NL50007&station_id=NL50009&station_id=NL50010&station_id=NL50002&station_id=NL50003&station_id=NL10133&station_id=NL10131&station_id=NL50006&station_id=NL10235&station_id=NL10230&station_id=NL10241&station_id=NL10442&station_id=NL10236&station_id=NL10237&station_id=NL10247&station_id=NL10550&station_id=NL49561&station_id=NL49565&station_id=NL10641&station_id=NL10807&station_id=NL10633&station_id=NL10636&station_id=NL10643&station_id=NL10318&station_id=NL10136&station_id=NL10240&station_id=NL10639&station_id=NL10644&station_id=NL10742&station_id=NL10821&station_id=NL01489&station_id=NL01912&station_id=NL10437&station_id=NL10444&station_id=NL49551&station_id=NL49570&station_id=NL49564&station_id=NL01908&station_id=NL01492&station_id=NL01495&station_id=NL10449`
     ];
 
     Promise.all(urls.map(url => fetch(url).then(resp => resp.json()))).then(([results]) => {
@@ -162,7 +161,7 @@ export default class App extends React.Component {
                   <AccordionItem title={"What is the purpose of this platform?"} titleTag={"h5"}>
                     <p>
                       The purpose of this platform is to find out whether cyclists in Amsterdam become more aware of how air quality influences your health. We are also researching
-                                             how this knowledge can be converted into behavioral change.
+                      how this knowledge can be converted into behavioral change.
                     </p>
                   </AccordionItem>
                   <AccordionItem title={"How does it work?"} titleTag={"h5"}>

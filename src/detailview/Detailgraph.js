@@ -77,10 +77,10 @@ class Detailgraph extends React.Component {
   };
 
   render() {
-    let { stationInfo, data, chartHeight } = this.state;
+    let { data, chartHeight } = this.state;
     moment().locale("nl-be", localization);
     let scaleLinechart = colorScaleDetail[2];
-    console.log(stationInfo);
+
     return (
       <div ref={e => (this.container = e)}>
         {this.state.data ? (
@@ -116,7 +116,7 @@ class Detailgraph extends React.Component {
             <div className="loading">
               <img src="asset/img/loader.gif" alt="Loading animation" />
               Loading...
-          </div>
+            </div>
           )}
       </div>
     );
