@@ -80,11 +80,12 @@ class Detailgraph extends React.Component {
     let { stationInfo, data, chartHeight } = this.state;
     moment().locale("nl-be", localization);
     let scaleLinechart = colorScaleDetail[2];
+    console.log(stationInfo);
     return (
       <div ref={e => (this.container = e)}>
         {this.state.data ? (
           <div className="panel-description">
-            <h1 className="panel-header">Station: {stationInfo.data.location}</h1>
+            <h1 className="panel-header">Station: {data[0].name}</h1>
             <p className="Panel-subtext">De hoogste concentraties stikstofdioxide (NO2) komen voor tijdens de ochtend- en avondspits. Deze stof komt vrij door het (weg)verkeer, energieproductie en industrie. Daarnaast ontstaat NO2 uit een reactie tussen stikstofmonoxide en ozon. Het weer en de verkeersdrukte hebben grote invloed op de concentratie. De wettelijke norm is een jaargemiddelde van 40 (μg/m3)</p>
             <ResponsiveContainer width={"100%"} height={chartHeight} >
               <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>

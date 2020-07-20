@@ -19,7 +19,7 @@ const INITIAL_VIEW_STATE = {
   latitude: 52.3709,
   zoom: 13,
   maxZoom: 16,
-  minZoom: 12,
+  minZoom: 9,
   pitch: 60,
   bearing: 5,
   scrollZoom:false
@@ -96,7 +96,7 @@ export default class App extends React.Component {
     let start = getNowHourISO();
     const urls = [
       `https://data.waag.org/api/getOfficialMeasurement?formula=NO2&start=${start}&end=${start}&
-      station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&&station_id=NL49021&&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016`
+      station_id=NL01908&station_id=NL10545&station_id=NL49007&station_id=NL10520&station_id=NL49002&station_id=NL49020&&station_id=NL49021&&station_id=NL49003&station_id=NL49022&station_id=NL49019&station_id=NL10544&station_id=NL49017&station_id=NL49012&station_id=NL49014&station_id=NL49016&station_id=NL01495`
     ];
 
     Promise.all(urls.map(url => fetch(url).then(resp => resp.json()))).then(([results]) => {
