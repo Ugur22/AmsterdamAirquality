@@ -40,13 +40,13 @@ var R = 6371;
 
 let score, duration, data;
 
-export default class Direction extends React.Component {
+export default class App extends React.Component {
   constructor(props) {
     super();
 
     this.state = {
       data: [],
-      render: false,
+      render: true,
       score: 0,
       duration
     };
